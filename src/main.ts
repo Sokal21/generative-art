@@ -9,7 +9,7 @@ import "./style.css";
 
 let img: p5.Image;
 
-const p5Instance = new p5(() => {});
+const p5Instance = new p5(() => { });
 const scenes: Scene[] = [];
 let microphone: Microphone;
 // const midiController = new Midi();
@@ -37,11 +37,11 @@ p5Instance.setup = () => {
     () => {
       if (!microphone) {
         microphone = new Microphone(
-          "d3159ed8e0589d9a702bcde9378b6f4fb1a6d234fafe851be466b9cccbf86f41",
+          "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
           bufferLength
         );
 
-        const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight);
+        const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
 
         scenes.push(curves);
         // const gridSize = 10;
@@ -69,7 +69,7 @@ p5Instance.draw = () => {
 
   scenes.forEach((scene) => scene.draw());
 
-  p5Instance.blendMode(p5Instance.DODGE);
-  p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
-  p5Instance.blendMode(p5Instance.NORMAL);
+  // p5Instance.blendMode(p5Instance.DODGE);
+  // p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
+  p5Instance.blendMode(p5Instance.BLEND);
 };

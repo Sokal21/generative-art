@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { Scene } from ".";
 import { Curve } from "../utils/curve";
+import { Microphone } from "../inputs/microphone";
 
 export class CurvesWithMic implements Scene {
   curves: Curve[];
@@ -8,7 +9,8 @@ export class CurvesWithMic implements Scene {
   constructor(
     public p5: p5,
     private readonly canvasWidth: number,
-    private readonly canvasHeight: number // private readonly minYchange: number,
+    private readonly canvasHeight: number, // private readonly minYchange: number,
+    private readonly microphone: Microphone,
   ) {
     this.curves = [
       new Curve(
@@ -41,13 +43,15 @@ export class CurvesWithMic implements Scene {
     ];
   }
 
-  delete() {}
+  delete() { }
 
   draw(): void {
+    const speed = this.microphone.getAverageVolume();
+
     this.curves.forEach((curve) => {
       curve.draw(this.canvasWidth, this.canvasHeight);
       this.p5.blendMode(this.p5.MULTIPLY);
-      curve.phase += 0.005;
+      curve.phase += Math.max(speed / 50 * 0.01, 0.002);
     });
   }
 }
