@@ -89,7 +89,7 @@ export class LifeGameWithMic implements Scene {
     }
 
     private gridMixer() {
-        const dataArray = shuffle(this.microphone.getByteTimeDomainData());
+        const dataArray = shuffle(this.microphone.getByteFrequencyData());
         const cellGrid = new Matrix(this.generatedGridSize, this.generatedGridSize)
         const rawRowSize = this.microphone.bufferLength / this.generatedGridSize;
         const rawColumnSize = rawRowSize / this.generatedGridSize;
@@ -101,7 +101,7 @@ export class LifeGameWithMic implements Scene {
                 const batch = rawRow.slice((j + i) * rawColumnSize, (j + i + 1) * rawColumnSize);
                 const average = batch.reduce((p, v) => p + v, 0) / batch.length;
 
-                cellGrid.setValue(i, j, average > 128 ? 1 : 0)
+                cellGrid.setValue(i, j, average > 25 ? 1 : 0)
             }
         }
 

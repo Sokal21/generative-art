@@ -6,6 +6,7 @@ import { Scene } from "./scenes";
 import { CurvesWithMic } from "./scenes/curves_with_mic";
 
 import "./style.css";
+import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 
 let img: p5.Image;
 
@@ -41,21 +42,21 @@ p5Instance.setup = () => {
           bufferLength
         );
 
-        const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
+        // const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
 
-        scenes.push(curves);
-        // const gridSize = 10;
-        // const lifeGame = new LifeGameWithMic(
-        //   p5Instance, microphone,
-        //   Math.ceil((canvasWidth / gridSize) / 2),
-        //   Math.ceil(canvasHeight / gridSize) / 2,
-        //   gridSize,
-        //   3,
-        //   10,
-        //   100,
-        // );
+        // scenes.push(curves);
+        const gridSize = 10;
+        const lifeGame = new LifeGameWithMic(
+          p5Instance, microphone,
+          Math.ceil((canvasWidth / gridSize) / 2),
+          Math.ceil(canvasHeight / gridSize) / 2,
+          gridSize,
+          3,
+          10,
+          100,
+        );
         // lifeGame.addMidiController(midiController);
-        // scenes.push(lifeGame);
+        scenes.push(lifeGame);
       }
     },
     false
@@ -63,7 +64,7 @@ p5Instance.setup = () => {
 };
 
 p5Instance.draw = () => {
-  p5Instance.background(240);
+  p5Instance.background(0);
   // p5Instance.noStroke();
   // p5Instance.translate(40, 40);
 
