@@ -25,17 +25,26 @@ const canvasHeight = window.innerHeight / 1.3;
 
 p5Instance.keyPressed = () => {
   if ((p5Instance.key = "s")) {
-    // p5Instance.saveGif("toto", 5, {});
+    p5Instance.saveGif("toto", 10, {});
   }
 };
 
 p5Instance.preload = () => {
-  img = p5Instance.loadImage("/texture.webp");
+  img = p5Instance.loadImage("/noise-texture.png");
 };
 
 p5Instance.setup = () => {
   p5Instance.createCanvas(canvasWidth, canvasHeight);
   p5Instance.frameRate(60);
+
+  microphone = new Microphone(
+    "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
+    bufferLength
+  );
+
+  const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
+
+  scenes.push(curves);
 
   document.getElementById("start_mic")?.addEventListener(
     "click",
@@ -68,15 +77,16 @@ p5Instance.setup = () => {
 };
 
 p5Instance.draw = () => {
-  p5Instance.background(256);
+  p5Instance.background(254, 249, 255);
   // p5Instance.noStroke();
   // p5Instance.translate(40, 40);
 
-  
+
   scenes.forEach((scene) => scene.draw());
-  
+
   p5Instance.blendMode(p5Instance.SOFT_LIGHT);
 
+  p5Instance.tint(255, 255 * 0.25)
   p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
   p5Instance.blendMode(p5Instance.NORMAL);
   // mask.draw(canvasWidth, canvasHeight);

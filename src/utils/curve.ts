@@ -4,6 +4,8 @@ import { Stroke } from "./stroke";
 export class Curve {
   constructor(
     private readonly p5: p5,
+    public canvasWidth: number,
+    public canvasHeight: number,
     public amplitude: number,
     public period: number,
     public phase: number,
@@ -11,7 +13,9 @@ export class Curve {
     private readonly modificator?: (x: number) => number,
     public color?: p5.Color,
     public stroke?: Stroke,
-  ) { }
+  ) {
+    this.apply = this.apply.bind(this);
+  }
 
   apply(x: number): number {
     const y =
@@ -23,7 +27,7 @@ export class Curve {
     return y;
   }
 
-  draw(canvasWidth: number, canvasHeight: number) {
+  draw(apply: (x: number) => number = this.apply) {
     this.p5.beginShape();
 
     if (this.color) {
@@ -36,12 +40,12 @@ export class Curve {
       this.p5.noStroke();
     }
 
-    for (let x = 0; x < canvasWidth; x++) {
-      this.p5.vertex(x, this.apply(x) + this.yOffset);
+    for (let x = 0; x < this.canvasWidth; x++) {
+      this.p5.vertex(x, apply(x) + this.yOffset);
     }
 
-    this.p5.vertex(canvasWidth + 100, canvasHeight);
-    this.p5.vertex(0, canvasWidth);
+    this.p5.vertex(this.canvasWidth + 100, this.canvasHeight);
+    this.p5.vertex(0, this.canvasWidth);
 
     this.p5.endShape();
   }
