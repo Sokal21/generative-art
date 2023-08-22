@@ -5,32 +5,48 @@ import { Microphone } from "../inputs/microphone";
 import { Stroke } from "../utils/stroke";
 import { Clock } from "../utils/clock";
 import { Sun } from "../utils/sun";
+import { Circular } from "../traslations/circular";
 
 
 export class CurvesWithMic implements Scene {
-  landScape: Curve[];
+  landscape: Curve[];
   mountain: [Curve, Curve];
   sun: Sun;
-  clock = new Clock(0.08);
-  fasterClock = new Clock(0.3);
+  moon: Sun;
+  landscapeClock = new Clock(0.08);
+  dayNightClock = new Clock(0.001);
+  rotationCenter: p5.Vector;
+  time = 0;
 
   constructor(
     public p5: p5,
-    canvasWidth: number,
-    canvasHeight: number, // private readonly minYchange: number,
+    private readonly canvasWidth: number,
+    private readonly canvasHeight: number, // private readonly minYchange: number,
     private readonly microphone: Microphone,
   ) {
     const stroke = new Stroke(p5, p5.color(23, 24, 24), 1);
 
+    this.rotationCenter = this.p5.createVector(canvasWidth / 2 + 230, canvasHeight);
+
+    this.moon = new Sun(
+      p5,
+      new Circular(p5, 0.008, this.rotationCenter, this.canvasHeight * 0.7, p5.PI),
+      150,
+      p5.color(229, 229, 229),
+      undefined,
+      undefined,
+      undefined,
+      stroke,
+    )
+
     this.sun = new Sun(
       p5,
-      canvasWidth / 2 + 230,
-      canvasHeight / 2 - 200,
+      new Circular(p5, 0.008, this.rotationCenter, this.canvasHeight * 0.7),
       200,
       p5.color(255, 127, 81),
-      250,
-      p5.color(206, 66, 87),
-      this.fasterClock,
+      undefined,
+      undefined,
+      undefined,
       stroke,
     )
 
@@ -63,7 +79,7 @@ export class CurvesWithMic implements Scene {
       )
     ]
 
-    this.landScape = [
+    this.landscape = [
       new Curve(
         p5,
         canvasWidth,
@@ -133,26 +149,30 @@ export class CurvesWithMic implements Scene {
   draw(): void {
     const speed = this.microphone.getAverageVolume();
 
+
+    // Sun
     this.sun.draw();
 
+    // Moon
+    this.moon.draw();
+
+    // Main mountain
     const mountain1 = this.mountain[0];
     const mountain2 = this.mountain[1];
+    mountain1.draw((x) => this.p5.lerp(mountain1.apply(x), mountain2.apply(x), this.landscapeClock.percentage()));
 
-    mountain1.draw((x) => this.p5.lerp(mountain1.apply(x), mountain2.apply(x), this.clock.percentage()));
-
-    this.clock.tick(() => {
-      this.mountain = [mountain2, mountain1];
-    })
-    this.fasterClock.tick(() => {
-      this.sun.invert();
-    })
-
-    this.landScape.forEach((curve) => {
+    // Cordillera
+    this.landscape.forEach((curve) => {
       curve.draw();
-      // this.p5.blendMode(this.p5.MULTIPLY);
+      // this.p5.blendMode(this.p5.SOFT_LIGHT);
       curve.phase += Math.max(speed / 50 * 0.01, 0.002);
     });
 
-    this.p5.blendMode(this.p5.BLEND);
+    this.landscapeClock.tick(() => {
+      this.mountain = [mountain2, mountain1];
+    })
+    this.time += 0.01;
+
+    // this.p5.blendMode(this.p5.BLEND);
   }
 }

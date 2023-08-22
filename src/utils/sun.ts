@@ -1,12 +1,12 @@
 import p5 from "p5";
 import { Stroke } from "./stroke";
 import { Clock } from "./clock";
+import { Traslation } from "../traslations";
 
 export class Sun {
   constructor(
     private readonly p5: p5,
-    public x: number,
-    public y: number,
+    public translation: Traslation,
     public radius: number,
     public color: p5.Color,
     public maxRadius?: number,
@@ -37,6 +37,9 @@ export class Sun {
 
     this.p5.fill(color);
     this.stroke?.draw();
-    this.p5.ellipse(this.x, this.y, h, h)
+
+    const position = this.translation.getPosition();
+    this.p5.ellipse(position.x, position.y, h, h)
+    this.translation.tick();
   }
 }
