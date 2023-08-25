@@ -6,6 +6,7 @@ import { Stroke } from "../utils/stroke";
 import { Clock } from "../utils/clock";
 import { Sun } from "../utils/sun";
 import { Circular } from "../traslations/circular";
+import { VerticalGradient } from "../utils/vertical_gradient";
 
 
 export class CurvesWithMic implements Scene {
@@ -152,9 +153,11 @@ export class CurvesWithMic implements Scene {
 
     // Sun
     this.sun.draw();
+    this.sun.translation.speed = Math.max(speed / 50 * 0.03, 0.006);
 
     // Moon
     this.moon.draw();
+    this.moon.translation.speed = Math.max(speed / 50 * 0.03, 0.006);
 
     // Main mountain
     const mountain1 = this.mountain[0];
@@ -173,6 +176,19 @@ export class CurvesWithMic implements Scene {
     })
     this.time += 0.01;
 
-    // this.p5.blendMode(this.p5.BLEND);
+    this.p5.blendMode(this.p5.MULTIPLY);
+    new VerticalGradient(
+      this.p5,
+      0,
+      0,
+      this.canvasWidth,
+      this.canvasHeight,
+      this.p5.color(229, 212, 192),
+      this.p5.color(153, 141, 160),
+      400,
+      500,
+    ).draw()
+    this.p5.blendMode(this.p5.NORMAL);
+
   }
 }

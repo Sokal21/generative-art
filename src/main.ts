@@ -84,11 +84,12 @@ p5Instance.draw = () => {
 
   scenes.forEach((scene) => scene.draw());
 
-  p5Instance.blendMode(p5Instance.SOFT_LIGHT);
+  // p5Instance.blendMode(p5Instance.SOFT_LIGHT);
 
-  p5Instance.tint(255, 255 * 0.25)
-  p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
-  p5Instance.blendMode(p5Instance.NORMAL);
+  // p5Instance.tint(255, 255 * 0.25)
+  // p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
+  // p5Instance.blendMode(p5Instance.NORMAL);
+
   // mask.draw(canvasWidth, canvasHeight);
 
   // const image = mainCanvas.createImage(canvasWidth, canvasHeight);

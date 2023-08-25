@@ -1,6 +1,9 @@
 import p5 from "p5";
 import { Stroke } from "./stroke";
 
+
+// Gran video para mejorar este código
+// https://www.youtube.com/watch?v=y7sgcFhk6ZM&ab_channel=TheCodingTrain
 export class Curve {
   constructor(
     private readonly p5: p5,
