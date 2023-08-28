@@ -176,17 +176,30 @@ export class CurvesWithMic implements Scene {
     })
     this.time += 0.01;
 
-    this.p5.blendMode(this.p5.MULTIPLY);
+    // this.p5.blendMode(this.p5.MULTIPLY);
     new VerticalGradient(
       this.p5,
       0,
       0,
       this.canvasWidth,
       this.canvasHeight,
-      this.p5.color(229, 212, 192),
-      this.p5.color(153, 141, 160),
-      400,
-      500,
+      [
+        {
+          color: this.p5.color(255, 58, 58),
+          position: 0,
+          length: 100,
+        },
+        {
+          color: this.p5.color(0, 252, 255),
+          position: Math.floor(this.canvasHeight * 0.43),
+          length: 40,
+        },
+        {
+          color: this.p5.color(24, 61, 138),
+          position: this.canvasHeight,
+          length: 0,
+        },
+      ]
     ).draw()
     this.p5.blendMode(this.p5.NORMAL);
 
