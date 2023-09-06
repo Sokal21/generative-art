@@ -6,7 +6,7 @@ interface GradientColor {
     length: number,
 }
 
-export class VerticalGradient {
+export class LinearGradient {
     public colors: GradientColor[];
 
     constructor(
@@ -52,33 +52,5 @@ export class VerticalGradient {
 
             offset++;
         }
-
-        // for (let i = 0; i < Math.min(this.height, this.endTransitionPointHeight); i++) {
-        //     let c: p5.Color;
-
-        //     // if (i < this.endTransitionPointHeight - this.transitionHeight) {
-        //     //     c = this.color1
-        //     // } else {
-        //     const inter = this.p5.map(i, this.endTransitionPointHeight - this.transitionHeight, this.endTransitionPointHeight, 0, 1);
-        //     c = this.p5.lerpColor(this.color1, this.color2, inter);
-        //     // }
-
-        //     this.p5.stroke(c);
-        //     this.p5.line(this.x, i + this.y, this.x + this.width, i + this.y);
-        // }
-
-        // for (let i = this.endTransitionPointHeight; i < this.height; i++) {
-        //     let c: p5.Color;
-
-        //     // if (i > this.endTransitionPointHeight + this.transitionHeight) {
-        //     //     c = this.color1
-        //     // } else {
-        //     const inter = this.p5.map(i, this.endTransitionPointHeight, this.endTransitionPointHeight + this.transitionHeight, 0, 1);
-        //     c = this.p5.lerpColor(this.color2, this.color1, inter);
-        //     // }
-
-        //     this.p5.stroke(c);
-        //     this.p5.line(this.x, i + this.y, this.x + this.width, i + this.y);
-        // }
     }
 }

@@ -6,7 +6,7 @@ import { Stroke } from "../utils/stroke";
 import { Clock } from "../utils/clock";
 import { Sun } from "../utils/sun";
 import { Circular } from "../traslations/circular";
-import { VerticalGradient } from "../utils/vertical_gradient";
+import { LinearGradient } from "../utils/linear_gradient";
 
 
 export class CurvesWithMic implements Scene {
@@ -177,7 +177,7 @@ export class CurvesWithMic implements Scene {
     this.time += 0.01;
 
     // this.p5.blendMode(this.p5.MULTIPLY);
-    new VerticalGradient(
+    new LinearGradient(
       this.p5,
       0,
       0,
