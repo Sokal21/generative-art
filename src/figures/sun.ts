@@ -1,6 +1,6 @@
 import p5 from "p5";
-import { Stroke } from "./stroke";
-import { Clock } from "./clock";
+import { Stroke } from "../utils/stroke";
+import { Clock } from "../utils/clock";
 import { Traslation } from "../traslations";
 
 export class Sun {

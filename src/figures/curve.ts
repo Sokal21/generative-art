@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { Stroke } from "./stroke";
+import { Stroke } from "../utils/stroke";
 
 
 // Gran video para mejorar este código

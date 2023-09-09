@@ -1,10 +1,10 @@
 import p5 from "p5";
 import { Scene } from ".";
-import { Curve } from "../utils/curve";
+import { Curve } from "../figures/curve";
 import { Microphone } from "../inputs/microphone";
 import { Stroke } from "../utils/stroke";
 import { Clock } from "../utils/clock";
-import { Sun } from "../utils/sun";
+import { Sun } from "../figures/sun";
 import { Circular } from "../traslations/circular";
 import { LinearGradient } from "../utils/linear_gradient";
 
@@ -177,31 +177,31 @@ export class CurvesWithMic implements Scene {
     this.time += 0.01;
 
     // this.p5.blendMode(this.p5.MULTIPLY);
-    new LinearGradient(
-      this.p5,
-      0,
-      0,
-      this.canvasWidth,
-      this.canvasHeight,
-      [
-        {
-          color: this.p5.color(255, 58, 58),
-          position: 0,
-          length: 100,
-        },
-        {
-          color: this.p5.color(0, 252, 255),
-          position: Math.floor(this.canvasHeight * 0.43),
-          length: 40,
-        },
-        {
-          color: this.p5.color(24, 61, 138),
-          position: this.canvasHeight,
-          length: 0,
-        },
-      ]
-    ).draw()
-    this.p5.blendMode(this.p5.NORMAL);
+    // new LinearGradient(
+    //   this.p5,
+    //   0,
+    //   0,
+    //   this.canvasWidth,
+    //   this.canvasHeight,
+    //   [
+    //     {
+    //       color: this.p5.color(255, 58, 58),
+    //       position: 0,
+    //       length: 100,
+    //     },
+    //     {
+    //       color: this.p5.color(0, 252, 255),
+    //       position: Math.floor(this.canvasHeight * 0.43),
+    //       length: 40,
+    //     },
+    //     {
+    //       color: this.p5.color(24, 61, 138),
+    //       position: this.canvasHeight,
+    //       length: 0,
+    //     },
+    //   ]
+    // ).draw()
+    // this.p5.blendMode(this.p5.NORMAL);
 
   }
 }
