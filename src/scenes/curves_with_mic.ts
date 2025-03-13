@@ -150,7 +150,6 @@ export class CurvesWithMic implements Scene {
   draw(): void {
     const speed = this.microphone.getAverageVolume();
 
-
     // Sun
     this.sun.draw();
     this.sun.translation.speed = Math.max(speed / 50 * 0.03, 0.006);

@@ -9,6 +9,13 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@babel/runtime@^7.25.0":
+  version "7.25.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.0.tgz#3af9a91c1b739c569d5d80cc917280919c544ecb"
+  integrity sha512-7dRy4DwXwtzBrPbZflqxnvfxLF8kdZXPkhymtDeFoFqE6ldzjQFgYTtYIFARcLEYDrqfBfYcZt1WqFxRoyC9Rw==
+  dependencies:
+    regenerator-runtime "^0.14.0"
+
 "@esbuild/android-arm64@0.17.19":
   version "0.17.19"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.17.19.tgz#bafb75234a5d3d1b690e7c2956a599345e84a2fd"
@@ -139,6 +146,14 @@
   resolved "https://registry.yarnpkg.com/@types/webmidi/-/webmidi-2.0.7.tgz#db6bc2e5fbf2ece44265b0a4fafde6573acd5210"
   integrity sha512-BMVefNAum/swSmQJdTbRWBuDPeWT7fHAZEzmtY6eBl1ObvkWVzh39VvAFC8v9n7Y5XoOpWmeYzyUUVfmpq3ggQ==
 
+automation-events@^7.0.8:
+  version "7.0.8"
+  resolved "https://registry.yarnpkg.com/automation-events/-/automation-events-7.0.8.tgz#e56227ea0409c6b6cdeddc665714528fa7adcbb8"
+  integrity sha512-AxrBwgV6jluoyFCTich5u1SzCS5pie3X71A9W0mijK34/KOh7ch3ruPoP8ikwrcZz3CgmCMQybp4YLTj8giX7g==
+  dependencies:
+    "@babel/runtime" "^7.25.0"
+    tslib "^2.6.3"
+
 djipevents@^2.0.7:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/djipevents/-/djipevents-2.0.7.tgz#4805dcb8dcf0b4a2c6e51eaecdfc218bb8f202fb"
@@ -226,6 +241,11 @@ regenerator-runtime@^0.13.11:
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
   integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
+regenerator-runtime@^0.14.0:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz#356ade10263f685dda125100cd862c1db895327f"
+  integrity sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==
+
 rollup@^3.21.0:
   version "3.26.0"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.26.0.tgz#9f2e0316a4ca641911cefd8515c562a9124e6130"
@@ -237,6 +257,28 @@ source-map-js@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
+
+standardized-audio-context@^25.3.70:
+  version "25.3.76"
+  resolved "https://registry.yarnpkg.com/standardized-audio-context/-/standardized-audio-context-25.3.76.tgz#71c44f0c93a396e1a3fdee53b36348bfa8e3194a"
+  integrity sha512-JEoloo9km718O9qYpIUu3AFwZkPosbCAZL6itJnshJQCDomse1AC5QLtuMMDWfkhdHmOUpyFQFpW2EUfZHsSXA==
+  dependencies:
+    "@babel/runtime" "^7.25.0"
+    automation-events "^7.0.8"
+    tslib "^2.6.3"
+
+tone@^15.0.4:
+  version "15.0.4"
+  resolved "https://registry.yarnpkg.com/tone/-/tone-15.0.4.tgz#d98f76a5886c0fd7bff41c43399972ac088f1ee6"
+  integrity sha512-Fr2xATgdkNhzwMZhrU0DXpkXQyambq73hjHRrBiC0Wkc6aPYRdmkySE9kRFAW878zgMiD+Lqvn/uNHt/7hbdnQ==
+  dependencies:
+    standardized-audio-context "^25.3.70"
+    tslib "^2.3.1"
+
+tslib@^2.3.1, tslib@^2.6.3:
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.6.3.tgz#0438f810ad7a9edcde7a241c3d80db693c8cbfe0"
+  integrity sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==
 
 typescript@^5.0.2:
   version "5.1.6"

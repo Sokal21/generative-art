@@ -7,10 +7,11 @@ import { CurvesWithMic } from "./scenes/curves_with_mic";
 import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 
 import "./style.css";
+import { Beater } from "./scenes/beater";
 
 let img: p5.Image;
 
-const p5Instance = new p5(() => { });
+const p5Instance = new p5(() => {});
 
 const scenes: Scene[] = [];
 let microphone: Microphone;
@@ -37,14 +38,14 @@ p5Instance.setup = () => {
   p5Instance.createCanvas(canvasWidth, canvasHeight);
   p5Instance.frameRate(60);
 
-  // microphone = new Microphone(
-  //   "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
-  //   bufferLength
-  // );
+  microphone = new Microphone(
+    "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
+    bufferLength
+  );
 
-  // const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
+  const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
 
-  // scenes.push(curves);
+  scenes.push(curves);
 
   document.getElementById("start_mic")?.addEventListener(
     "click",
@@ -74,13 +75,14 @@ p5Instance.setup = () => {
     },
     false
   );
+
+  // scenes.push(new Beater(p5Instance, canvasWidth, canvasHeight));
 };
 
 p5Instance.draw = () => {
   p5Instance.background(254, 249, 255);
   // p5Instance.noStroke();
   // p5Instance.translate(40, 40);
-
 
   scenes.forEach((scene) => scene.draw());
 
@@ -97,7 +99,4 @@ p5Instance.draw = () => {
 
   // p5Instance.image(mainCanvas, -canvasWidth / 2 + 200, 0, canvasWidth, canvasHeight);
   // mask.period += 0.05;
-
-
-
 };
