@@ -4,10 +4,10 @@ import { Microphone } from "./inputs/microphone";
 import { Scene } from "./scenes";
 // import { Midi } from "./inputs/midit";
 import { CurvesWithMic } from "./scenes/curves_with_mic";
-import { LifeGameWithMic } from "./scenes/life_game_with_mic";
+// import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 
 import "./style.css";
-import { Beater } from "./scenes/beater";
+// import { Beater } from "./scenes/beater";
 
 let img: p5.Image;
 
@@ -34,31 +34,49 @@ p5Instance.preload = () => {
   img = p5Instance.loadImage("/noise-texture.png");
 };
 
-p5Instance.setup = () => {
+p5Instance.setup = async () => {
   p5Instance.createCanvas(canvasWidth, canvasHeight);
   p5Instance.frameRate(60);
 
-  microphone = new Microphone(
-    "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
-    bufferLength
-  );
+  try {
+    // Get all audio devices
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioInputs = devices.filter(device => device.kind === 'audioinput');
+    
+    if (audioInputs.length > 0) {
+      // Use the first available audio input device
+      const firstAudioDevice = audioInputs[0];
+      microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
+    } else {
+      console.warn('No audio input devices found');
+      microphone = new Microphone('default', bufferLength);
+    }
 
-  const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
-
-  scenes.push(curves);
+    const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
+    scenes.push(curves);
+  } catch (error) {
+    console.error('Error getting audio devices:', error);
+    microphone = new Microphone('default', bufferLength);
+  }
 
   document.getElementById("start_mic")?.addEventListener(
     "click",
-    () => {
+    async () => {
       if (!microphone) {
-        microphone = new Microphone(
-          "f34f489ce77ed1ac37de4908babb1504e2303ad209e68eb3ea9ce2f190868e3a",
-          bufferLength
-        );
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const audioInputs = devices.filter(device => device.kind === 'audioinput');
+          
+          if (audioInputs.length > 0) {
+            const firstAudioDevice = audioInputs[0];
+            microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
+          } else {
+            console.warn('No audio input devices found');
+            microphone = new Microphone('default', bufferLength);
+          }
 
-        const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
-
-        scenes.push(curves);
+          const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
+          scenes.push(curves);
         // const gridSize = 10;
         // const lifeGame = new LifeGameWithMic(
         //   p5Instance, microphone,
@@ -71,12 +89,14 @@ p5Instance.setup = () => {
         // );
         // // lifeGame.addMidiController(midiController);
         // scenes.push(lifeGame);
+        } catch (error) {
+          console.error('Error getting audio devices:', error);
+          microphone = new Microphone('default', bufferLength);
+        }
       }
     },
     false
   );
-
-  // scenes.push(new Beater(p5Instance, canvasWidth, canvasHeight));
 };
 
 p5Instance.draw = () => {

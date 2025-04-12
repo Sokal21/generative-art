@@ -10,7 +10,12 @@ export class Microphone {
         this.dataArrayFrequency = new Uint8Array(this.bufferLength);
 
         navigator.mediaDevices
-            .getUserMedia({ video: false, audio: true })
+            .getUserMedia({ 
+                video: false, 
+                audio: {
+                    deviceId: deviceId === 'default' ? undefined : { exact: deviceId }
+                }
+            })
             .then((stream) => {
                 this.analyser = this.audioCtx.createAnalyser();
                 this.analyser.fftSize = this.bufferLength;
