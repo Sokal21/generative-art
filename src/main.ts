@@ -3,120 +3,133 @@ import p5 from "p5";
 import { Microphone } from "./inputs/microphone";
 import { Scene } from "./scenes";
 // import { Midi } from "./inputs/midit";
-import { CurvesWithMic } from "./scenes/curves_with_mic";
+// import { CurvesWithMic } from "./scenes/curves_with_mic";
 // import { LifeGameWithMic } from "./scenes/life_game_with_mic";
-
+// import { SinWithMic } from "./scenes/sin_with_mic";
+import { CamWithEffects } from "./scenes/cam_with_effects";
 import "./style.css";
 // import { Beater } from "./scenes/beater";
 
-let img: p5.Image;
 
-const p5Instance = new p5(() => {});
 
-const scenes: Scene[] = [];
-let microphone: Microphone;
-// const midiController = new Midi();
+new p5((p: p5) => {
+  let img: p5.Image;
+  let myShader: p5.Shader;
+  const scenes: Scene[] = [];
+  let microphone: Microphone;
+  const bufferLength = 1024;
+  const canvasWidth = window.innerWidth / 1.3;
+  const canvasHeight = window.innerHeight / 1.3;
 
-const bufferLength = 1024;
-const canvasWidth = window.innerWidth / 1.3;
-const canvasHeight = window.innerHeight / 1.3;
+  p.preload = () => {
+    img = p.loadImage("/noise-texture.png");
+    myShader = p.loadShader('effect.vert', '/effect.frag');
+  };
 
-// const mainCanvas = p5Instance.createGraphics(canvasWidth, canvasHeight, "webgl");
-// const maskCanvas = p5Instance.createGraphics(canvasWidth, canvasHeight, "webgl");
+  p.setup = async () => {
+    p.noCanvas()
+    const canvas = p.createCanvas(canvasWidth, canvasHeight, p.WEBGL);
+    // p.frameRate(60);
+    canvas.id("main_canvas");
 
-p5Instance.keyPressed = () => {
-  if ((p5Instance.key = "s")) {
-    // p5Instance.saveGif("toto", 10, {});
-  }
-};
-
-p5Instance.preload = () => {
-  img = p5Instance.loadImage("/noise-texture.png");
-};
-
-p5Instance.setup = async () => {
-  p5Instance.createCanvas(canvasWidth, canvasHeight);
-  p5Instance.frameRate(60);
-
-  try {
-    // Get all audio devices
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioInputs = devices.filter(device => device.kind === 'audioinput');
-    
-    if (audioInputs.length > 0) {
-      // Use the first available audio input device
-      const firstAudioDevice = audioInputs[0];
-      microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
-    } else {
-      console.warn('No audio input devices found');
-      microphone = new Microphone('default', bufferLength);
-    }
-
-    const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
-    scenes.push(curves);
-  } catch (error) {
-    console.error('Error getting audio devices:', error);
-    microphone = new Microphone('default', bufferLength);
-  }
-
-  document.getElementById("start_mic")?.addEventListener(
-    "click",
-    async () => {
-      if (!microphone) {
-        try {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const audioInputs = devices.filter(device => device.kind === 'audioinput');
-          
-          if (audioInputs.length > 0) {
-            const firstAudioDevice = audioInputs[0];
-            microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
-          } else {
-            console.warn('No audio input devices found');
+    // try {
+    //   // Get all audio devices
+    //   const devices = await navigator.mediaDevices.enumerateDevices();
+    //   const audioInputs = devices.filter(device => device.kind === 'audioinput');
+  
+    //   console.log(audioInputs);
+  
+    //   if (audioInputs.length > 0) {
+    //     // Use the first available audio input device
+    //     const firstAudioDevice = audioInputs[0];
+    //     microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
+    //   } else {
+    //     console.warn('No audio input devices found');
+    //     microphone = new Microphone('default', bufferLength);
+    //   }
+  
+    //   const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
+    //   scenes.push(curves);
+    // } catch (error) {
+    //   console.error('Error getting audio devices:', error);
+    //   microphone = new Microphone('default', bufferLength);
+    // }
+  
+    document.getElementById("start_mic")?.addEventListener(
+      "click",
+      async () => {
+        if (!microphone) {
+          try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const audioInputs = devices.filter(device => device.kind === 'audioinput');
+  
+            if (audioInputs.length > 0) {
+              const firstAudioDevice = audioInputs[0];
+              microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
+            } else {
+              console.warn('No audio input devices found');
+              microphone = new Microphone('default', bufferLength);
+            }
+  
+            // const sin = new SinWithMic(p, canvasWidth, canvasHeight, microphone);
+            // scenes.push(sin);
+  
+            const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
+            scenes.push(cam);
+  
+            // const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
+            // scenes.push(curves);
+            // const gridSize = 10;
+            // const lifeGame = new LifeGameWithMic(
+            //   p, microphone,
+            //   Math.ceil((canvasWidth / gridSize) / 2),
+            //   Math.ceil(canvasHeight / gridSize) / 2,
+            //   gridSize,
+            //   3,
+            //   10,
+            //   100,
+            // );
+            // lifeGame.addMidiController(midiController);
+            // scenes.push(lifeGame);
+          } catch (error) {
+            console.error('Error getting audio devices:', error);
             microphone = new Microphone('default', bufferLength);
           }
-
-          const curves = new CurvesWithMic(p5Instance, canvasWidth, canvasHeight, microphone);
-          scenes.push(curves);
-        // const gridSize = 10;
-        // const lifeGame = new LifeGameWithMic(
-        //   p5Instance, microphone,
-        //   Math.ceil((canvasWidth / gridSize) / 2),
-        //   Math.ceil(canvasHeight / gridSize) / 2,
-        //   gridSize,
-        //   3,
-        //   10,
-        //   100,
-        // );
-        // // lifeGame.addMidiController(midiController);
-        // scenes.push(lifeGame);
-        } catch (error) {
-          console.error('Error getting audio devices:', error);
-          microphone = new Microphone('default', bufferLength);
         }
-      }
-    },
-    false
-  );
-};
+      },
+      false
+    );
+  };
 
-p5Instance.draw = () => {
-  p5Instance.background(254, 249, 255);
-  // p5Instance.noStroke();
-  // p5Instance.translate(40, 40);
+  p.keyPressed = () => {
+    if ((p.key = "s")) {
+      // p.saveGif("toto", 10, {});
+    }
+  };
 
-  scenes.forEach((scene) => scene.draw());
+  p.draw = () => {
+    p.background(254, 249, 255);
+    // p.noStroke();
+    // p.translate(40, 40);
 
-  // p5Instance.blendMode(p5Instance.SOFT_LIGHT);
+    scenes.forEach((scene) => scene.draw());
 
-  // p5Instance.tint(255, 255 * 0.25)
-  // p5Instance.image(img, 0, 0, canvasWidth, canvasHeight);
-  // p5Instance.blendMode(p5Instance.NORMAL);
+    // p.blendMode(p.SOFT_LIGHT);
 
-  // mask.draw(canvasWidth, canvasHeight);
+    // p.tint(255, 255 * 0.25)
+    // p.image(img, 0, 0, canvasWidth, canvasHeight);
+    // p.blendMode(p.NORMAL);
 
-  // const image = mainCanvas.createImage(canvasWidth, canvasHeight);
-  // image.mask(maskCanvas.createImage(canvasWidth, canvasHeight));
+    // mask.draw(canvasWidth, canvasHeight);
 
-  // p5Instance.image(mainCanvas, -canvasWidth / 2 + 200, 0, canvasWidth, canvasHeight);
-  // mask.period += 0.05;
-};
+    // const image = mainCanvas.createImage(canvasWidth, canvasHeight);
+    // image.mask(maskCanvas.createImage(canvasWidth, canvasHeight));
+
+    // p.image(mainCanvas, -canvasWidth / 2 + 200, 0, canvasWidth, canvasHeight);
+    // mask.period += 0.05;
+  };
+});
+
+// const midiController = new Midi();
+// const mainCanvas = p5Instance.createGraphics(canvasWidth, canvasHeight, "webgl");
+// const maskCanvas = p5Instance.createGraphics(canvasWidth, canvasHeight, "webgl");

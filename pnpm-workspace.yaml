@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@uehreka/seriously': patches/@uehreka__seriously.patch

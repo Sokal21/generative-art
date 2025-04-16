@@ -4,10 +4,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@uehreka/seriously':
+    hash: 27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2
+    path: patches/@uehreka__seriously.patch
+
 importers:
 
   .:
     dependencies:
+      '@uehreka/seriously':
+        specifier: ^1.0.1
+        version: 1.0.1(patch_hash=27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -189,6 +197,9 @@ packages:
 
   '@types/webmidi@2.1.0':
     resolution: {integrity: sha512-k898MjEUSHB+6rSeCPQk/kLgie0wgWZ2t78GlWj86HbTQ+XmtbBafYg5LNjn8bVHfItEhPGZPf579Xfc6keV6w==}
+
+  '@uehreka/seriously@1.0.1':
+    resolution: {integrity: sha512-2Gnve+xVsodnZ6D9Log/5e6EKqbyJ2PBs88WXd83QA6Mf3YHd9YAW43TTkJIJjh2nQq2BKEU6Gc+5j0PWqZRGg==}
 
   automation-events@7.1.9:
     resolution: {integrity: sha512-nIcJo3WeNtB16TSIK2D5Ldy/5eErzmXSuOlK979sYtIQQT++iFfj/1PMjFH1XEvtqCO0+KNUEEIJ+O0l4BtncQ==}
@@ -374,6 +385,8 @@ snapshots:
 
   '@types/webmidi@2.1.0':
     optional: true
+
+  '@uehreka/seriously@1.0.1(patch_hash=27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2)': {}
 
   automation-events@7.1.9:
     dependencies:
