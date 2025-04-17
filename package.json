@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/server.js"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
@@ -16,11 +17,18 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
+    "@types/simple-peer": "^9.11.8",
     "@uehreka/seriously": "^1.0.1",
+    "events": "^3.3.0",
+    "express": "^4.18.2",
     "lodash": "^4.17.21",
     "p5": "^1.6.0",
+    "simple-peer": "^9.11.1",
+    "simple-peer-server": "^0.0.11",
+    "simple-peer-wrapper": "^0.0.5",
     "tone": "^15.0.4",
     "uuid": "^9.0.0",
-    "webmidi": "^3.1.6"
+    "webmidi": "^3.1.6",
+    "ws": "^8.16.0"
   }
 }

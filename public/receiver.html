@@ -1,0 +1,31 @@
+<!-- receiver.html -->
+<!DOCTYPE html>
+<html>
+
+<body>
+  <h1>Receiver</h1>
+  <div id="video-container">
+    <video id="remote-video" autoplay></video>
+  </div>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script type="module">
+    const peer = new Peer('RECEIVER_PEER_ID', {
+      host: 'localhost',
+      port: 9000,
+      path: '/'
+    });
+
+    peer.on('call', (call) => {
+      console.log('call', call);
+      call.answer(); // we don't send any stream back
+
+      call.on('stream', (remoteStream) => {
+        console.log('remoteStream', remoteStream);
+        const video = document.getElementById('remote-video');
+        video.srcObject = remoteStream;
+      });
+    });
+  </script>
+</body>
+
+</html>

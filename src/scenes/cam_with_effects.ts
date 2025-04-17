@@ -30,6 +30,7 @@ export class CamWithEffects implements Scene {
 
     this.myShader.setUniform('tex0', this.capture as any);
     this.myShader.setUniform('resolution', [this.canvasWidth, this.canvasHeight]);
+    this.myShader.setUniform('mouse', [this.p5.mouseX, this.p5.mouseY]);
     this.myShader.setUniform('time', this.p5.millis() / 1000.0);
     this.myShader.setUniform('speed', speed);
     this.p5.rect(-this.canvasWidth/2, -this.canvasHeight/2, this.canvasWidth, this.canvasHeight);

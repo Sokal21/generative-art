@@ -10,8 +10,6 @@ import { CamWithEffects } from "./scenes/cam_with_effects";
 import "./style.css";
 // import { Beater } from "./scenes/beater";
 
-
-
 new p5((p: p5) => {
   let img: p5.Image;
   let myShader: p5.Shader;
@@ -23,7 +21,8 @@ new p5((p: p5) => {
 
   p.preload = () => {
     img = p.loadImage("/noise-texture.png");
-    myShader = p.loadShader('effect.vert', '/effect.frag');
+    // myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
+    myShader = p.loadShader('/shaders/simple/effect.vert', '/shaders/simple/effect.frag');
   };
 
   p.setup = async () => {
@@ -31,6 +30,7 @@ new p5((p: p5) => {
     const canvas = p.createCanvas(canvasWidth, canvasHeight, p.WEBGL);
     // p.frameRate(60);
     canvas.id("main_canvas");
+
 
     // try {
     //   // Get all audio devices
@@ -54,7 +54,7 @@ new p5((p: p5) => {
     //   console.error('Error getting audio devices:', error);
     //   microphone = new Microphone('default', bufferLength);
     // }
-  
+
     document.getElementById("start_mic")?.addEventListener(
       "click",
       async () => {
