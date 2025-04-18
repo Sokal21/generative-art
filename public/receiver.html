@@ -5,12 +5,12 @@
 <body>
   <h1>Receiver</h1>
   <div id="video-container">
-    <video id="remote-video" autoplay></video>
+    <video id="remote-video" autoplay playsinline muted></video>
   </div>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script type="module">
     const peer = new Peer('RECEIVER_PEER_ID', {
-      host: 'localhost',
+      host: '192.168.100.87',
       port: 9000,
       path: '/'
     });
@@ -23,6 +23,17 @@
         console.log('remoteStream', remoteStream);
         const video = document.getElementById('remote-video');
         video.srcObject = remoteStream;
+        
+        // Add performance optimizations
+        video.playsInline = true;
+        video.muted = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        
+        // Request video frames at maximum rate
+        video.requestVideoFrameCallback(() => {
+          video.requestVideoFrameCallback();
+        });
       });
     });
   </script>

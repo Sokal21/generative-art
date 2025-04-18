@@ -26,10 +26,10 @@
     document.getElementById('start_stream').addEventListener('click', async () => {
       const canvas = document.querySelector('#main_canvas');
 
-      const stream = canvas.captureStream(30); // 30 FPS
+      const stream = canvas.captureStream(60); // 30 FPS
 
       const peer = new Peer('SENDER_PEER_ID', {
-        host: 'localhost',
+        host: '192.168.100.87',
         port: 9000,
         path: '/'
       }); // Use PeerJS
@@ -37,7 +37,6 @@
         console.log('My peer ID is: ' + id);
         // share this ID with the receiver somehow
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
           console.log('stream', stream);
           const call = peer.call("RECEIVER_PEER_ID", stream);
         } catch (err) {

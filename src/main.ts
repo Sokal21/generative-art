@@ -8,6 +8,8 @@ import { Scene } from "./scenes";
 // import { SinWithMic } from "./scenes/sin_with_mic";
 import { CamWithEffects } from "./scenes/cam_with_effects";
 import "./style.css";
+import { CurvesWithMic } from "./scenes/curves_with_mic";
+import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 // import { Beater } from "./scenes/beater";
 
 new p5((p: p5) => {
@@ -21,14 +23,14 @@ new p5((p: p5) => {
 
   p.preload = () => {
     img = p.loadImage("/noise-texture.png");
-    // myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
-    myShader = p.loadShader('/shaders/simple/effect.vert', '/shaders/simple/effect.frag');
+    myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
+    // myShader = p.loadShader('/shaders/simple/effect.vert', '/shaders/simple/effect.frag');
   };
 
   p.setup = async () => {
     p.noCanvas()
     const canvas = p.createCanvas(canvasWidth, canvasHeight, p.WEBGL);
-    // p.frameRate(60);
+    p.frameRate(60);
     canvas.id("main_canvas");
 
 
@@ -74,12 +76,12 @@ new p5((p: p5) => {
             // const sin = new SinWithMic(p, canvasWidth, canvasHeight, microphone);
             // scenes.push(sin);
   
-            const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
-            scenes.push(cam);
+            // const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
+            // scenes.push(cam);
   
-            // const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
-            // scenes.push(curves);
-            // const gridSize = 10;
+            const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
+            scenes.push(curves);
+            const gridSize = 10;
             // const lifeGame = new LifeGameWithMic(
             //   p, microphone,
             //   Math.ceil((canvasWidth / gridSize) / 2),
@@ -108,6 +110,7 @@ new p5((p: p5) => {
   };
 
   p.draw = () => {
+    p.translate(-p.width/2, -p.height/2);
     p.background(254, 249, 255);
     // p.noStroke();
     // p.translate(40, 40);
