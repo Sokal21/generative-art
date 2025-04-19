@@ -15,7 +15,8 @@ export class LifeGameWithMic implements Scene {
     generatedGridSize: number;
     midiController: Midi | undefined;
     notesListenerUuids: string[] = [];
-    cellColor = '#222222';
+    cellColor = '#ffffff';
+    backgroundColor = '#000000';
 
     constructor(
         p5: p5,
@@ -47,8 +48,6 @@ export class LifeGameWithMic implements Scene {
     }
 
     private noteListener(event: NoteMessageEvent) {
-        console.log("entre", event.note.name);
-
         switch (event.note.name) {
             case "C":
                 this.cellColor = '#222222';
@@ -129,7 +128,7 @@ export class LifeGameWithMic implements Scene {
                 if (cell) {
                     this.p5.fill(this.cellColor);
                 } else {
-                    this.p5.fill('#ffffff');
+                    this.p5.fill(this.backgroundColor);
                 }
 
                 this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
@@ -147,7 +146,7 @@ export class LifeGameWithMic implements Scene {
                 if (cell) {
                     this.p5.fill(this.cellColor);
                 } else {
-                    this.p5.fill('#ffffff');
+                    this.p5.fill(this.backgroundColor);
                 }
 
                 this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
@@ -165,7 +164,7 @@ export class LifeGameWithMic implements Scene {
                 if (cell) {
                     this.p5.fill(this.cellColor);
                 } else {
-                    this.p5.fill('#ffffff');
+                    this.p5.fill(this.backgroundColor);
                 }
 
                 this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
@@ -183,7 +182,7 @@ export class LifeGameWithMic implements Scene {
                 if (cell) {
                     this.p5.fill(this.cellColor);
                 } else {
-                    this.p5.fill('#ffffff');
+                    this.p5.fill(this.backgroundColor);
                 }
 
                 this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)

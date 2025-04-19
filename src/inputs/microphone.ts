@@ -2,6 +2,9 @@ export class Microphone {
     private audioCtx = new AudioContext();
     dataArray: Uint8Array;
     dataArrayFrequency: Uint8Array;
+    private lastVolume = 0;
+    private beatThreshold = 1.2; // Adjust this value to change beat sensitivity
+    private beatDecayRate = 0.98; // How quickly the beat threshold decays
 
     analyser: AnalyserNode | undefined;
 
@@ -45,5 +48,15 @@ export class Microphone {
         this.analyser?.getByteTimeDomainData(this.dataArray);
 
         return this.dataArray;
+    }
+
+    detectBeat(): boolean {
+        const currentVolume = this.getAverageVolume();
+        const isBeat = currentVolume > this.lastVolume * this.beatThreshold;
+        
+        // Update last volume with decay
+        this.lastVolume = Math.max(currentVolume, this.lastVolume * this.beatDecayRate);
+        
+        return isBeat;
     }
 }

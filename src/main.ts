@@ -10,6 +10,7 @@ import { CamWithEffects } from "./scenes/cam_with_effects";
 import "./style.css";
 import { CurvesWithMic } from "./scenes/curves_with_mic";
 import { LifeGameWithMic } from "./scenes/life_game_with_mic";
+import { LifeGameScene } from "./scenes/life_game_scene";
 // import { Beater } from "./scenes/beater";
 
 new p5((p: p5) => {
@@ -18,18 +19,21 @@ new p5((p: p5) => {
   const scenes: Scene[] = [];
   let microphone: Microphone;
   const bufferLength = 1024;
-  const canvasWidth = window.innerWidth / 1.3;
-  const canvasHeight = window.innerHeight / 1.3;
+  const canvasWidth = 2560;
+  const canvasHeight = 1440;
 
   p.preload = () => {
     img = p.loadImage("/noise-texture.png");
-    myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
+    // myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
     // myShader = p.loadShader('/shaders/simple/effect.vert', '/shaders/simple/effect.frag');
+    // myShader = p.loadShader('/shaders/life_game/effect.vert', '/shaders/life_game/effect.frag');
+    myShader = p.loadShader('/shaders/chromatic_aberration/effect.vert', '/shaders/chromatic_aberration/effect.frag');
   };
 
   p.setup = async () => {
     p.noCanvas()
     const canvas = p.createCanvas(canvasWidth, canvasHeight, p.WEBGL);
+    p.pixelDensity(1);
     p.frameRate(60);
     canvas.id("main_canvas");
 
@@ -76,12 +80,15 @@ new p5((p: p5) => {
             // const sin = new SinWithMic(p, canvasWidth, canvasHeight, microphone);
             // scenes.push(sin);
   
-            // const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
-            // scenes.push(cam);
+            const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
+            scenes.push(cam);
+
+            // const lifeGameScene = new LifeGameScene(p, canvasWidth, canvasHeight, myShader, microphone, canvas);
+            // scenes.push(lifeGameScene);
   
-            const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
-            scenes.push(curves);
-            const gridSize = 10;
+            // const curves = new CurvesWithMic(p, canvasWidth, canvasHeight, microphone);
+            // scenes.push(curves);
+            // const gridSize = 10;
             // const lifeGame = new LifeGameWithMic(
             //   p, microphone,
             //   Math.ceil((canvasWidth / gridSize) / 2),
@@ -111,7 +118,6 @@ new p5((p: p5) => {
 
   p.draw = () => {
     p.translate(-p.width/2, -p.height/2);
-    p.background(254, 249, 255);
     // p.noStroke();
     // p.translate(40, 40);
 
