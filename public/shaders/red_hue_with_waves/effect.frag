@@ -40,8 +40,8 @@ void main() {
   color.rgb = hueRotate * color.rgb;
 
   // 💥 High contrast
-  float contrast = 2.5;  // Increased contrast
-  color.rgb = (color.rgb - 0.5) * contrast + 0.5;
+  // float contrast = 2.5;  // Increased contrast
+  // color.rgb = (color.rgb - 0.5) * contrast + 0.5;
 
   // Boost red channel
   color.r *= 1.5;

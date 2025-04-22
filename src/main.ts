@@ -7,27 +7,31 @@ import { Scene } from "./scenes";
 // import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 // import { SinWithMic } from "./scenes/sin_with_mic";
 import { CamWithEffects } from "./scenes/cam_with_effects";
-import "./style.css";
 import { CurvesWithMic } from "./scenes/curves_with_mic";
 import { LifeGameWithMic } from "./scenes/life_game_with_mic";
 import { LifeGameScene } from "./scenes/life_game_scene";
+import { VideoWithEffect } from "./scenes/video_with_effect";
 // import { Beater } from "./scenes/beater";
+import "./style.css";
 
 new p5((p: p5) => {
   let img: p5.Image;
-  let myShader: p5.Shader;
+  let myShader: p5.Shader | undefined;
   const scenes: Scene[] = [];
   let microphone: Microphone;
   const bufferLength = 1024;
-  const canvasWidth = 2560;
-  const canvasHeight = 1440;
+  const canvasWidth = window.innerWidth;
+  const canvasHeight = window.innerHeight;
 
   p.preload = () => {
     img = p.loadImage("/noise-texture.png");
+    myShader = p.loadShader('/shaders/red_effect/effect.vert', '/shaders/red_effect/effect.frag');
+
+    // myShader = p.loadShader('/shaders/colorful_doge/effect.vert', '/shaders/colorful_doge/effect.frag');
     // myShader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
     // myShader = p.loadShader('/shaders/simple/effect.vert', '/shaders/simple/effect.frag');
     // myShader = p.loadShader('/shaders/life_game/effect.vert', '/shaders/life_game/effect.frag');
-    myShader = p.loadShader('/shaders/chromatic_aberration/effect.vert', '/shaders/chromatic_aberration/effect.frag');
+    // myShader = p.loadShader('/shaders/chromatic_aberration/effect.vert', '/shaders/chromatic_aberration/effect.frag');
   };
 
   p.setup = async () => {
@@ -80,8 +84,8 @@ new p5((p: p5) => {
             // const sin = new SinWithMic(p, canvasWidth, canvasHeight, microphone);
             // scenes.push(sin);
   
-            const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
-            scenes.push(cam);
+            // const cam = new CamWithEffects(p, canvasWidth, canvasHeight, microphone, myShader);
+            // scenes.push(cam);
 
             // const lifeGameScene = new LifeGameScene(p, canvasWidth, canvasHeight, myShader, microphone, canvas);
             // scenes.push(lifeGameScene);
@@ -95,11 +99,27 @@ new p5((p: p5) => {
             //   Math.ceil(canvasHeight / gridSize) / 2,
             //   gridSize,
             //   3,
-            //   10,
             //   100,
+            //   10,
             // );
-            // lifeGame.addMidiController(midiController);
+            // // lifeGame.addMidiController(midiController);
             // scenes.push(lifeGame);
+
+            // Create video scene with your video URL
+            const videoScene = new VideoWithEffect(
+              p,
+              canvasWidth,
+              canvasHeight,
+              microphone,
+              myShader,
+              '/videos/loop7.webm', // Replace with your video URL
+              {
+                // Add any additional shader uniforms here
+                // For example:
+                // 'offset': [0.1, 0.1]
+              }
+            );
+            scenes.push(videoScene);
           } catch (error) {
             console.error('Error getting audio devices:', error);
             microphone = new Microphone('default', bufferLength);

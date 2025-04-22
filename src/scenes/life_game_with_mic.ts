@@ -119,77 +119,44 @@ export class LifeGameWithMic implements Scene {
 
     draw(): void {
         this.p5.noStroke();
-
         for (let y = 0; y < this.gridHeight; y++) {
-
             for (let x = 0; x < this.gridWidth; x++) {
+                // Draw the original cell
                 const cell = this.lifeGame.grid.getValue(x, y);
-
                 if (cell) {
                     this.p5.fill(this.cellColor);
                 } else {
                     this.p5.fill(this.backgroundColor);
                 }
+                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius);
 
-                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
-            }
-
-        }
-
-        this.p5.translate(this.gridWidth * this.gridSize, 0)
-
-        for (let y = 0; y < this.gridHeight; y++) {
-
-            for (let x = 0; x < this.gridWidth; x++) {
-                const cell = this.lifeGame.grid.getValue((this.gridWidth - x), y);
-
-                if (cell) {
+                // Draw mirrored cell on right side
+                const mirroredCell = this.lifeGame.grid.getValue((this.gridWidth - x), y);
+                if (mirroredCell) {
                     this.p5.fill(this.cellColor);
                 } else {
                     this.p5.fill(this.backgroundColor);
                 }
+                this.p5.square((x + this.gridWidth) * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius);
 
-                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
-            }
-
-        }
-
-        this.p5.translate(0, this.gridHeight * this.gridSize)
-
-        for (let y = 0; y < this.gridHeight; y++) {
-
-            for (let x = 0; x < this.gridWidth; x++) {
-                const cell = this.lifeGame.grid.getValue((this.gridWidth - x), (this.gridHeight - y));
-
-                if (cell) {
+                // Draw mirrored cell on bottom right
+                const bottomRightCell = this.lifeGame.grid.getValue((this.gridWidth - x), (this.gridHeight - y));
+                if (bottomRightCell) {
                     this.p5.fill(this.cellColor);
                 } else {
                     this.p5.fill(this.backgroundColor);
                 }
+                this.p5.square((x + this.gridWidth) * this.gridSize, (y + this.gridHeight) * this.gridSize, this.gridSize, this.squareRadius);
 
-                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
-            }
-
-        }
-
-        this.p5.translate(- this.gridWidth * this.gridSize, 0)
-
-        for (let y = 0; y < this.gridHeight; y++) {
-
-            for (let x = 0; x < this.gridWidth; x++) {
-                const cell = this.lifeGame.grid.getValue(x, (this.gridHeight - y));
-
-                if (cell) {
+                // Draw mirrored cell on bottom left
+                const bottomLeftCell = this.lifeGame.grid.getValue(x, (this.gridHeight - y));
+                if (bottomLeftCell) {
                     this.p5.fill(this.cellColor);
                 } else {
                     this.p5.fill(this.backgroundColor);
                 }
-
-                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius)
+                this.p5.square(x * this.gridSize, (y + this.gridHeight) * this.gridSize, this.gridSize, this.squareRadius);
             }
-
         }
-
-        this.p5.translate(0, - this.gridHeight * this.gridSize)
     }
 }

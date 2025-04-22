@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@uehreka/seriously':
-    hash: 27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2
-    path: patches/@uehreka__seriously.patch
-
 importers:
 
   .:
@@ -18,7 +13,7 @@ importers:
         version: 9.11.8
       '@uehreka/seriously':
         specifier: ^1.0.1
-        version: 1.0.1(patch_hash=27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2)
+        version: 1.0.1
       events:
         specifier: ^3.3.0
         version: 3.3.0
@@ -30,7 +25,7 @@ importers:
         version: 4.17.21
       p5:
         specifier: ^1.6.0
-        version: 1.11.3
+        version: 1.11.5
       simple-peer:
         specifier: ^9.11.1
         version: 9.11.1
@@ -518,8 +513,8 @@ packages:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
     engines: {node: '>= 0.8'}
 
-  p5@1.11.3:
-    resolution: {integrity: sha512-5eiyuZ3Pvo6ucr3nr8AzD+qwpoleiIEF2a2HmiO6PJM1tnbD0LmLlckZyYGJATs0tdmRjc37Muh6KPS4d1FHHg==}
+  p5@1.11.5:
+    resolution: {integrity: sha512-tn/Em+mwRReFOH6HgAhr/kj2BSRtlEn4bga3MMCwo4OQE1POO9zEIg+7SDxJj8f+H37N6NJgxtEYaQGSNpxwyA==}
 
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
@@ -836,7 +831,7 @@ snapshots:
   '@types/webmidi@2.1.0':
     optional: true
 
-  '@uehreka/seriously@1.0.1(patch_hash=27dd556751d4579ae9b9cbb3be668592ac19f0954c7b8c5c12ad567fc20e87a2)': {}
+  '@uehreka/seriously@1.0.1': {}
 
   accepts@1.3.8:
     dependencies:
@@ -1154,7 +1149,7 @@ snapshots:
     dependencies:
       ee-first: 1.1.1
 
-  p5@1.11.3: {}
+  p5@1.11.5: {}
 
   parseurl@1.3.3: {}
 
