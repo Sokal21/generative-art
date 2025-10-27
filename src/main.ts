@@ -72,6 +72,100 @@ const setupUI = () => {
   };
   container.appendChild(receiverBtn);
 
+  const controlledWebcamBtn = document.createElement('button');
+  controlledWebcamBtn.textContent = 'Controlled Webcam';
+  controlledWebcamBtn.style.margin = '10px';
+  controlledWebcamBtn.style.padding = '10px 20px';
+  controlledWebcamBtn.style.fontSize = '16px';
+  controlledWebcamBtn.style.cursor = 'pointer';
+  controlledWebcamBtn.onclick = () => {
+    container.style.display = 'none';
+    setupControlledWebcam();
+  };
+  container.appendChild(controlledWebcamBtn);
+
+  document.body.appendChild(container);
+};
+
+const setupControlledWebcam = () => {
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.top = '50%';
+  container.style.left = '50%';
+  container.style.transform = 'translate(-50%, -50%)';
+  container.style.textAlign = 'center';
+  container.style.zIndex = '1000';
+  container.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+  container.style.padding = '20px';
+  container.style.borderRadius = '10px';
+  container.style.color = 'white';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Enter Peer ID (e.g., WEBCAM_1)';
+  input.style.padding = '10px';
+  input.style.fontSize = '16px';
+  input.style.marginRight = '10px';
+  container.appendChild(input);
+
+  const connectBtn = document.createElement('button');
+  connectBtn.textContent = 'Connect';
+  connectBtn.style.padding = '10px 20px';
+  connectBtn.style.fontSize = '16px';
+  connectBtn.style.cursor = 'pointer';
+  connectBtn.onclick = () => {
+    const peerId = input.value.trim();
+    if (!peerId) {
+      alert('Please enter a Peer ID');
+      return;
+    }
+
+    peer = new Peer(peerId, {
+      host: '192.168.100.87',
+      port: 9000,
+      path: '/'
+    });
+
+    peer.on('open', () => {
+      console.log('Controlled Webcam connected with ID:', peerId);
+      container.style.display = 'none';
+      // Initialize p5 sketch
+      new p5(controlledWebcamSketch);
+    });
+
+    peer.on('error', (err: any) => {
+      console.error('PeerJS error:', err);
+      alert('Error connecting to PeerJS server. Please try again.');
+    });
+
+    // Listen for commands from sender
+    peer.on('connection', (conn: any) => {
+      conn.on('data', (data: any) => {
+        if (data.type === 'start_stream') {
+          // Start streaming to receivers
+          const canvas = document.querySelector('#main_canvas') as HTMLCanvasElement;
+          if (!canvas) {
+            console.error('Canvas element not found');
+            return;
+          }
+          const stream = canvas.captureStream(60);
+
+          // Call all receiver peers provided in the command
+          if (data.receiverPeers && Array.isArray(data.receiverPeers)) {
+            data.receiverPeers.forEach((receiverPeerId: string) => {
+              const call = peer.call(receiverPeerId, stream);
+              console.log(`Streaming to receiver: ${receiverPeerId}`);
+            });
+          }
+        } else if (data.type === 'stop_stream') {
+          // TODO: Implement stop streaming logic if needed
+          console.log('Stop stream command received');
+        }
+      });
+    });
+  };
+  container.appendChild(connectBtn);
+
   document.body.appendChild(container);
 };
 
@@ -330,12 +424,78 @@ const setupSender = () => {
       const data = await response.json();
       console.log('Server peers:', data);
       updatePeersList(data);
+      updateControlledWebcamsList(data);
     } catch (error) {
       console.error('Error querying server peers:', error);
     }
   };
   container.appendChild(queryPeersBtn);
   container.appendChild(peersContainer);
+
+  // Add Controlled Webcams section
+  const controlledWebcamsContainer = document.createElement('div');
+  controlledWebcamsContainer.style.marginTop = '20px';
+  controlledWebcamsContainer.style.padding = '10px';
+  controlledWebcamsContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  controlledWebcamsContainer.style.borderRadius = '5px';
+
+  const controlledWebcamsTitle = document.createElement('h3');
+  controlledWebcamsTitle.textContent = 'Controlled Webcams:';
+  controlledWebcamsTitle.style.margin = '0 0 5px 0';
+  controlledWebcamsContainer.appendChild(controlledWebcamsTitle);
+
+  const controlledWebcamsList = document.createElement('ul');
+  controlledWebcamsList.style.listStyle = 'none';
+  controlledWebcamsList.style.padding = '0';
+  controlledWebcamsList.style.margin = '0';
+  controlledWebcamsContainer.appendChild(controlledWebcamsList);
+
+  const updateControlledWebcamsList = (peers: string[]) => {
+    // Filter to show only controlled webcam peers (you can identify them by naming convention)
+    const webcamPeers = peers.filter(peerId =>
+      peerId.toLowerCase().includes('webcam') && peerId !== 'SENDER_PEER_ID'
+    );
+
+    controlledWebcamsList.innerHTML = '';
+    webcamPeers.forEach(peerId => {
+      const li = document.createElement('li');
+      li.style.margin = '5px 0';
+      li.style.padding = '8px';
+      li.style.borderRadius = '3px';
+      li.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+      li.style.display = 'flex';
+      li.style.justifyContent = 'space-between';
+      li.style.alignItems = 'center';
+
+      const label = document.createElement('span');
+      label.textContent = peerId;
+
+      const activateBtn = document.createElement('button');
+      activateBtn.textContent = 'Activate Stream';
+      activateBtn.style.padding = '5px 10px';
+      activateBtn.style.cursor = 'pointer';
+      activateBtn.style.fontSize = '12px';
+      activateBtn.onclick = () => {
+        // Send command to controlled webcam to start streaming
+        const conn = peer.connect(peerId);
+        conn.on('open', () => {
+          // Get all selected receiver peers
+          const receiverPeers = Array.from(selectedPeers);
+          conn.send({
+            type: 'start_stream',
+            receiverPeers: receiverPeers
+          });
+          console.log(`Sent start_stream command to ${peerId} with receivers:`, receiverPeers);
+        });
+      };
+
+      li.appendChild(label);
+      li.appendChild(activateBtn);
+      controlledWebcamsList.appendChild(li);
+    });
+  };
+
+  container.appendChild(controlledWebcamsContainer);
 
   document.body.appendChild(container);
 };
@@ -532,6 +692,62 @@ setupUI();
 
 // Sender sketch
 const senderSketch = (p: p5) => {
+  let img: p5.Image;
+  let shader: p5.Shader;
+  const scenes: Scene[] = [];
+  let microphone: Microphone;
+  const bufferLength = 1024;
+  const canvasWidth = window.innerWidth;
+  const canvasHeight = window.innerHeight;
+
+  p.preload = () => {
+    img = p.loadImage("/noise-texture.png");
+    shader = p.loadShader('/shaders/red_hue_with_waves/effect.vert', '/shaders/red_hue_with_waves/effect.frag');
+  };
+
+  p.setup = async () => {
+    p.noCanvas()
+    const canvas = p.createCanvas(canvasWidth, canvasHeight, p.WEBGL);
+    p.pixelDensity(1);
+    p.frameRate(60);
+    canvas.id("main_canvas");
+
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices.filter(device => device.kind === 'audioinput');
+
+      if (audioInputs.length > 0) {
+        const firstAudioDevice = audioInputs[0];
+        microphone = new Microphone(firstAudioDevice.deviceId, bufferLength);
+      } else {
+        console.warn('No audio input devices found');
+        microphone = new Microphone('default', bufferLength);
+      }
+
+      // Create camera scene with shader
+      const camScene = new CamWithEffects(
+        p,
+        canvasWidth,
+        canvasHeight,
+        microphone,
+        shader,
+        {}
+      );
+      scenes.push(camScene);
+    } catch (error) {
+      console.error('Error getting audio devices:', error);
+      microphone = new Microphone('default', bufferLength);
+    }
+  };
+
+  p.draw = () => {
+    p.translate(-p.width/2, -p.height/2);
+    scenes.forEach((scene) => scene.draw());
+  };
+};
+
+// Controlled webcam sketch (same as sender but controlled remotely)
+const controlledWebcamSketch = (p: p5) => {
   let img: p5.Image;
   let shader: p5.Shader;
   const scenes: Scene[] = [];
