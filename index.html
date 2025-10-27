@@ -7,49 +7,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + TS</title>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #connected-peers {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.ts"></script>
-  <div style="position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px;">
-    <button id="start_mic">
-      start mic
-    </button>
-    <button id="start_stream">
-      start stream
-    </button>
-  </div>
-
-  <script>
-    let peer = null;
-    let stream = null;
-
-    document.getElementById('start_stream').addEventListener('click', async () => {
-      const canvas = document.querySelector('#main_canvas');
-
-      const stream = canvas.captureStream(60); // 30 FPS
-
-      const peer = new Peer('SENDER_PEER_ID', {
-        host: '192.168.100.87',
-        port: 9000,
-        path: '/'
-      }); // Use PeerJS
-      peer.on('open', async (id) => {
-        console.log('My peer ID is: ' + id);
-        // share this ID with the receiver somehow
-        try {
-          console.log('stream', stream);
-          const call = peer.call("RECEIVER_PEER_ID", stream);
-        } catch (err) {
-          console.error("Failed to get local stream", err);
-        }
-      });
-    });
-
-    // const call = peer.call('RECEIVER_PEER_ID', stream);
-
-  </script>
 </body>
 
 </html>

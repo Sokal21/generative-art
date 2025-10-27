@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "lodash": "^4.17.21",
     "p5": "^1.6.0",
+    "peerjs": "^1.5.4",
     "simple-peer": "^9.11.1",
     "simple-peer-server": "^0.0.11",
     "simple-peer-wrapper": "^0.0.5",

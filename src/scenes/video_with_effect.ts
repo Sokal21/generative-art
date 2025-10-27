@@ -30,8 +30,28 @@ export class VideoWithEffect implements Scene {
         // Create and load the video
         this.video = this.p5.createVideo(videoUrl);
         this.video.hide();
-        this.video.loop();
         this.video.volume(0); // Mute the video since we're controlling speed with audio
+
+        // Handle video play errors
+        this.video.elt.onerror = (e: Event) => {
+            console.error('Video error:', e);
+        };
+
+        // Ensure video plays when visible
+        const playVideo = async () => {
+            try {
+                this.video.loop();
+            } catch (error) {
+                console.warn('Video play error:', error);
+                // Try to play again after a short delay
+                setTimeout(playVideo, 1000);
+            }
+        };
+
+        // Start playing when the video is loaded
+        this.video.elt.onloadeddata = () => {
+            playVideo();
+        };
 
         // Setup keyboard controls
         this.setupKeyboardControls();
@@ -67,7 +87,10 @@ export class VideoWithEffect implements Scene {
     }
 
     delete(): void {
-        this.video.remove();
+        if (this.video) {
+            this.video.pause();
+            this.video.remove();
+        }
     }
 
     draw(): void {
@@ -77,17 +100,17 @@ export class VideoWithEffect implements Scene {
         // Get microphone volume and map it to a speed range
         const micLevel = this.microphone.getAverageVolume(); // Normalize to 0-1 range
         // Map volume (0-1) to speed (0.5-3.0)
-        const speed = this.p5.map(micLevel / 50, 0, 1, 1, 5, true);
+        // const speed = this.p5.map(micLevel / 50, 0, 1, 1, 5, true);
 
         // Update video speed based on microphone volume
-        this.video.speed(speed);
+        this.video.speed(1.5);
 
         // Set shader uniforms
         if (this.myShader !== undefined) {
             this.myShader.setUniform('tex0', this.video as any);
             this.myShader.setUniform('resolution', [this.canvasWidth, this.canvasHeight]);
             this.myShader.setUniform('time', this.p5.millis() / 1000.0);
-            this.myShader.setUniform('speed', speed);
+            this.myShader.setUniform('speed', 1.5);
             this.myShader.setUniform('brightness', this.brightness);
             this.myShader.setUniform('contrast', this.contrast);
             this.myShader.setUniform('saturation', this.saturation);
