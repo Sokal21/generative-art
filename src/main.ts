@@ -126,8 +126,9 @@ const setupControlledWebcam = () => {
       path: '/'
     });
 
-    peer.on('open', () => {
-      console.log('Controlled Webcam connected with ID:', peerId);
+    peer.on('open', (id: string) => {
+      console.log('Controlled Webcam connected with ID:', id);
+      console.log('Peer is now registered on the server');
       container.style.display = 'none';
       // Initialize p5 sketch
       new p5(controlledWebcamSketch);
@@ -422,7 +423,15 @@ const setupSender = () => {
     try {
       const response = await fetch('http://192.168.100.87:9000/peerjs/peers');
       const data = await response.json();
-      console.log('Server peers:', data);
+      console.log('All peers from server:', data);
+      console.log('Total peers found:', data.length);
+
+      // Debug: Show which peers are filtered as webcams
+      const webcamPeers = data.filter((peerId: string) =>
+        peerId.toLowerCase().includes('webcam') && peerId !== 'SENDER_PEER_ID'
+      );
+      console.log('Filtered webcam peers:', webcamPeers);
+
       updatePeersList(data);
       updateControlledWebcamsList(data);
     } catch (error) {
