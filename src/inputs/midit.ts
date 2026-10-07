@@ -1,5 +1,4 @@
 import { ControlChangeMessageEvent, NoteMessageEvent, WebMidi } from "webmidi";
-import { v4 as uuidv4 } from 'uuid';
 
 export type MidiControllerEventListener = (event: ControlChangeMessageEvent) => void;
 export type MidiNoteEventListener = (event: NoteMessageEvent) => void;
@@ -12,9 +11,10 @@ interface ListenerObject<T> {
 export class Midi {
     controllerListeners: ListenerObject<MidiControllerEventListener>[] = [];
     noteListeners: ListenerObject<MidiNoteEventListener>[] = [];
+    private lastListenerId = 0;
 
     addControllerListener(listener: MidiControllerEventListener): string {
-        const uuid = uuidv4();
+        const uuid = String(++this.lastListenerId);
 
         this.controllerListeners.push({
             listener,
@@ -33,7 +33,7 @@ export class Midi {
     }
 
     addNoteListener(listener: MidiNoteEventListener): string {
-        const uuid = uuidv4();
+        const uuid = String(++this.lastListenerId);
 
         this.noteListeners.push({
             listener,
@@ -65,6 +65,6 @@ export class Midi {
                 chan.addListener("noteon", (e) => this.noteListener(e));
                 chan.addListener("controlchange", (e) => this.controllerListener(e));
             })
-        }).catch(err => alert(err));
+        }).catch(err => console.warn('MIDI no disponible:', err));
     }
 }

@@ -7,15 +7,17 @@ export class SinWithMic implements Scene {
 
   constructor(
     public p5: p5,
-    private readonly canvasWidth: number,
-    private readonly canvasHeight: number, // private readonly minYchange: number,
     private readonly microphone: Microphone,
   ) {
     this.p5.rectMode(this.p5.CENTER);
     this.p5.angleMode(this.p5.DEGREES);
   }
 
-  delete() { }
+  dispose() {
+    // angleMode y rectMode son globales al sketch: se devuelven a su default.
+    this.p5.rectMode(this.p5.CORNER);
+    this.p5.angleMode(this.p5.RADIANS);
+  }
 
   draw(): void {
     this.p5.noFill()

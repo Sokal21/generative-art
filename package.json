@@ -6,30 +6,28 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "server": "node server/server.js"
+    "start": "vite build && vite preview",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "p5": "^1.6.0",
+    "preact": "^10.24.0",
+    "webmidi": "^3.1.6"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
+    "@types/node": "^22.0.0",
     "@types/p5": "^1.6.2",
-    "@types/uuid": "^9.0.2",
+    "@types/ws": "^8.5.10",
+    "@vitejs/plugin-basic-ssl": "^1.2.0",
     "typescript": "^5.0.2",
-    "vite": "^4.3.9"
-  },
-  "dependencies": {
-    "@types/simple-peer": "^9.11.8",
-    "@uehreka/seriously": "^1.0.1",
-    "events": "^3.3.0",
-    "express": "^4.18.2",
-    "lodash": "^4.17.21",
-    "p5": "^1.6.0",
-    "peerjs": "^1.5.4",
-    "simple-peer": "^9.11.1",
-    "simple-peer-server": "^0.0.11",
-    "simple-peer-wrapper": "^0.0.5",
-    "tone": "^15.0.4",
-    "uuid": "^9.0.0",
-    "webmidi": "^3.1.6",
+    "vite": "^4.5.14",
     "ws": "^8.16.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

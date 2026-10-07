@@ -6,7 +6,6 @@ import { Stroke } from "../utils/stroke";
 import { Clock } from "../utils/clock";
 import { Sun } from "../figures/sun";
 import { Circular } from "../traslations/circular";
-import { LinearGradient } from "../utils/linear_gradient";
 
 
 export class CurvesWithMic implements Scene {
@@ -145,9 +144,10 @@ export class CurvesWithMic implements Scene {
     ];
   }
 
-  delete() { }
+  dispose() { }
 
   draw(): void {
+    this.p5.translate(-this.canvasWidth / 2, -this.canvasHeight / 2);
     const speed = this.microphone.getAverageVolume();
 
     // Sun
