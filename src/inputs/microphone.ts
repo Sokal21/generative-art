@@ -25,11 +25,21 @@ export class Microphone {
 
                 const source = this.audioCtx.createMediaStreamSource(stream);
                 source.connect(this.analyser);
+                this.resume();
                 // this.analyser.connect(this.audioCtx.destination);
             })
             .catch((err) => {
                 console.error(`you got an error: ${err}`);
             });
+    }
+
+    // Chrome deja el AudioContext suspendido hasta que haya un gesto del usuario.
+    private resume() {
+        if (this.audioCtx.state !== "suspended") return;
+        const unlock = () => this.audioCtx.resume();
+        this.audioCtx.resume().catch(() => {});
+        window.addEventListener("pointerdown", unlock, { once: true });
+        window.addEventListener("keydown", unlock, { once: true });
     }
 
     getAverageVolume() {

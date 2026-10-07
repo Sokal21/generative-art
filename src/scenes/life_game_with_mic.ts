@@ -33,10 +33,10 @@ export class LifeGameWithMic implements Scene {
         this.lifeGame = new LifeGame(gridWidth, gridHeight);
         this.generatedGridSize = Math.pow(2, generatedGridSize);
 
-        this.intervalSteping = setInterval(() => {
+        this.intervalSteping = window.setInterval(() => {
             this.lifeGame.step();
         }, stepInterval);
-        this.intervalSampling = setInterval(() => {
+        this.intervalSampling = window.setInterval(() => {
             this.gridMixer();
         }, samplingRate);
 
@@ -44,6 +44,7 @@ export class LifeGameWithMic implements Scene {
     }
 
     addMidiController(controller: Midi) {
+        this.midiController = controller;
         this.notesListenerUuids.push(controller.addNoteListener(this.noteListener));
     }
 
@@ -70,7 +71,7 @@ export class LifeGameWithMic implements Scene {
 
     changeIntervalStep(newStepInterval: number) {
         clearInterval(this.intervalSteping);
-        this.intervalSampling = setInterval(() => {
+        this.intervalSteping = window.setInterval(() => {
             this.lifeGame.step();
         }, newStepInterval);
     }
@@ -78,7 +79,7 @@ export class LifeGameWithMic implements Scene {
 
     changeIntervalSampling(newSamplingRate: number) {
         clearInterval(this.intervalSampling);
-        this.intervalSampling = setInterval(() => {
+        this.intervalSampling = window.setInterval(() => {
             this.gridMixer();
         }, newSamplingRate);
     }
@@ -111,51 +112,35 @@ export class LifeGameWithMic implements Scene {
         );
     }
 
-    delete(): void {
+    dispose(): void {
         clearInterval(this.intervalSampling);
         clearInterval(this.intervalSteping);
         this.notesListenerUuids.map((uuid) => this.midiController?.removeNoteListener(uuid));
     }
 
     draw(): void {
+        const { gridWidth, gridHeight, gridSize } = this;
+        const grid = this.lifeGame.grid;
+
+        this.p5.translate(-gridWidth * gridSize, -gridHeight * gridSize);
         this.p5.noStroke();
-        for (let y = 0; y < this.gridHeight; y++) {
-            for (let x = 0; x < this.gridWidth; x++) {
-                // Draw the original cell
-                const cell = this.lifeGame.grid.getValue(x, y);
-                if (cell) {
-                    this.p5.fill(this.cellColor);
-                } else {
-                    this.p5.fill(this.backgroundColor);
-                }
-                this.p5.square(x * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius);
+        this.p5.fill(this.backgroundColor);
+        this.p5.rect(0, 0, gridWidth * 2 * gridSize, gridHeight * 2 * gridSize);
+        this.p5.fill(this.cellColor);
 
-                // Draw mirrored cell on right side
-                const mirroredCell = this.lifeGame.grid.getValue((this.gridWidth - x), y);
-                if (mirroredCell) {
-                    this.p5.fill(this.cellColor);
-                } else {
-                    this.p5.fill(this.backgroundColor);
-                }
-                this.p5.square((x + this.gridWidth) * this.gridSize, y * this.gridSize, this.gridSize, this.squareRadius);
+        const cell = (alive: number, column: number, row: number) => {
+            if (alive) {
+                this.p5.square(column * gridSize, row * gridSize, gridSize, this.squareRadius);
+            }
+        };
 
-                // Draw mirrored cell on bottom right
-                const bottomRightCell = this.lifeGame.grid.getValue((this.gridWidth - x), (this.gridHeight - y));
-                if (bottomRightCell) {
-                    this.p5.fill(this.cellColor);
-                } else {
-                    this.p5.fill(this.backgroundColor);
-                }
-                this.p5.square((x + this.gridWidth) * this.gridSize, (y + this.gridHeight) * this.gridSize, this.gridSize, this.squareRadius);
-
-                // Draw mirrored cell on bottom left
-                const bottomLeftCell = this.lifeGame.grid.getValue(x, (this.gridHeight - y));
-                if (bottomLeftCell) {
-                    this.p5.fill(this.cellColor);
-                } else {
-                    this.p5.fill(this.backgroundColor);
-                }
-                this.p5.square(x * this.gridSize, (y + this.gridHeight) * this.gridSize, this.gridSize, this.squareRadius);
+        // La grilla se dibuja cuatro veces, espejada en cada cuadrante.
+        for (let y = 0; y < gridHeight; y++) {
+            for (let x = 0; x < gridWidth; x++) {
+                cell(grid.getValue(x, y), x, y);
+                cell(grid.getValue(gridWidth - x, y), x + gridWidth, y);
+                cell(grid.getValue(gridWidth - x, gridHeight - y), x + gridWidth, y + gridHeight);
+                cell(grid.getValue(x, gridHeight - y), x, y + gridHeight);
             }
         }
     }

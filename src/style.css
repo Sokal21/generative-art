@@ -1,11 +1,65 @@
+html,
 body {
   margin: 0;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 100%;
+  background: #000;
 }
 
-main {
+/* Pantallas y cámaras: solo el canvas, a pantalla completa. */
+body.stage {
+  overflow: hidden;
+  cursor: none;
+}
+
+body.stage canvas {
+  display: block;
+}
+
+.stream {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.stage-label {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.4em;
+  text-align: center;
+  font: 600 clamp(2rem, 9vw, 9rem) / 1 "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  color: #ece7dc;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+}
+
+.stage-label small {
+  font-size: 0.18em;
+  font-weight: 500;
+  color: #9a93aa;
+}
+
+.stage-label[hidden] {
+  display: none;
+}
+
+/* Aviso discreto: en vivo no queremos carteles sobre la proyección. */
+.stage-status {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font: 500 13px / 1.3 "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  color: #ece7dc;
+  background: rgba(20, 18, 27, 0.85);
+  pointer-events: none;
+}
+
+.stage-status[hidden] {
+  display: none;
 }
