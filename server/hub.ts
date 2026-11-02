@@ -6,10 +6,19 @@ import {
   ClientMessage,
   DEFAULT_PARAMS,
   EffectParams,
+  AUTO_MODES,
+  isHexColor,
+  TUNNEL_IDS,
   HubState,
+  isMedia,
   PARAM_KEYS,
   PARAMS,
+  parseWebUrl,
+  PendingVideo,
   Role,
+  FIGURES,
+  WEKUFE_MOVES,
+  WEKUFE_SHOTS,
   SCENES,
   ScreenContent,
   ServerMessage,
@@ -20,6 +29,10 @@ import {
 
 const HEARTBEAT_MS = 5000;
 const CLOSE_REPLACED = 4001;
+// Sobra para 512 bytes en base64.
+const MAX_SPECTRUM_CHARS = 1024;
+// Una pantalla atrasada se saltea cuadros de sonido en vez de acumularlos.
+const MAX_AUDIO_BACKLOG_BYTES = 64 * 1024;
 
 interface Client {
   ws: WebSocket;
@@ -31,6 +44,7 @@ interface Client {
 
 interface ScreenRecord {
   content: ScreenContent;
+  pending: PendingVideo | null;
   params: EffectParams;
   error: string | null;
   client?: Client;
@@ -62,6 +76,10 @@ function parseContent(value: any): ScreenContent | null {
         : null;
     case "stream":
       return isId(value.source) ? { kind: "stream", source: value.source } : null;
+    case "web": {
+      const url = typeof value.url === "string" ? parseWebUrl(value.url) : null;
+      return url ? { kind: "web", url } : null;
+    }
     default:
       return null;
   }
@@ -75,6 +93,15 @@ function parseParams(value: any): Partial<EffectParams> {
       params[key] = Math.min(PARAMS[key].max, Math.max(PARAMS[key].min, n));
     }
   }
+  if (value?.color === null || isHexColor(value?.color)) params.color = value.color;
+  if (TUNNEL_IDS.includes(value?.tunnel)) params.tunnel = value.tunnel;
+  if (typeof value?.onBeat === "boolean") params.onBeat = value.onBeat;
+  if (value?.autoMode in AUTO_MODES) params.autoMode = value.autoMode;
+  if (value?.figure in FIGURES) params.figure = value.figure;
+  if (typeof value?.wekufeAuto === "boolean") params.wekufeAuto = value.wekufeAuto;
+  if (value?.wekufeShot in WEKUFE_SHOTS) params.wekufeShot = value.wekufeShot;
+  if (value?.wekufeMove in WEKUFE_MOVES) params.wekufeMove = value.wekufeMove;
+  if (typeof value?.wekufeCue === "number" && Number.isFinite(value.wekufeCue)) params.wekufeCue = value.wekufeCue;
   return params;
 }
 
@@ -97,6 +124,8 @@ export function createHub(listVideos: () => string[]) {
   const controls = new Set<Client>();
   let videos = listVideos();
   let sessions = 0;
+  let batches = 0;
+  let audioSource: Client | null = null;
 
   const send = (client: Client | undefined, message: ServerMessage) => {
     if (client?.ws.readyState === WebSocket.OPEN) {
@@ -109,12 +138,14 @@ export function createHub(listVideos: () => string[]) {
       id,
       online: !!s.client,
       content: s.content,
+      pending: s.pending,
       params: s.params,
       error: s.error,
     })),
     sources: [...sources].map(([id, s]) => ({ id, online: !!s.client, shader: s.shader })),
     videos,
     addresses: lanAddresses(),
+    remoteAudio: !!audioSource,
   });
 
   const publishState = () => {
@@ -135,10 +166,49 @@ export function createHub(listVideos: () => string[]) {
   };
 
   const pushScreen = (screen: ScreenRecord) =>
-    send(screen.client, { t: "screen", content: screen.content, params: screen.params, videos });
+    send(screen.client, {
+      t: "screen",
+      content: screen.content,
+      pending: screen.pending?.content.url ?? null,
+      params: screen.params,
+      videos,
+    });
 
   const targets = (ids: unknown): ScreenRecord[] =>
     Array.isArray(ids) ? ids.flatMap((id) => screens.get(id) ?? []) : [];
+
+  const listeners = (): Client[] =>
+    [...screens.values(), ...sources.values()].flatMap((record) => record.client ?? []);
+
+  const setAudioSource = (client: Client | null) => {
+    audioSource = client;
+    const message: ServerMessage = { t: "audio-source", remote: !!client };
+    listeners().forEach((listener) => send(listener, message));
+    publishState();
+  };
+
+  const refreshVideos = () => {
+    videos = listVideos();
+    publishState();
+    screens.forEach(pushScreen);
+  };
+
+  // Una orden arranca cuando la tienen todas sus pantallas conectadas. Las que
+  // están caídas no frenan al resto: la bajan y arrancan al volver.
+  const startReadyVideos = () => {
+    const waiting = [...screens.values()].filter((screen) => screen.client && screen.pending);
+    for (const batch of new Set(waiting.map((screen) => screen.pending!.batch))) {
+      const group = waiting.filter((screen) => screen.pending!.batch === batch);
+      if (!group.every((screen) => screen.pending!.ready)) continue;
+      for (const screen of group) {
+        screen.content = screen.pending!.content;
+        screen.pending = null;
+        pushScreen(screen);
+      }
+    }
+    publishState();
+    publishViewers();
+  };
 
   const register = (ws: WebSocket, hello: Extract<ClientMessage, { t: "hello" }>): Client | null => {
     if (hello.role === "control") {
@@ -152,6 +222,8 @@ export function createHub(listVideos: () => string[]) {
 
     const client: Client = { ws, role: hello.role, id: hello.id, session: ++sessions, alive: true };
     const records: Map<string, ScreenRecord | SourceRecord> = hello.role === "screen" ? screens : sources;
+    // Antes que el contenido: una escena no debería pedir el micrófono si va a usar el del panel.
+    send(client, { t: "audio-source", remote: !!audioSource });
 
     // Mismo nombre abierto dos veces: gana la última, la anterior se retira.
     const previous = records.get(hello.id)?.client;
@@ -163,11 +235,14 @@ export function createHub(listVideos: () => string[]) {
     if (hello.role === "screen") {
       const screen: ScreenRecord = screens.get(hello.id) ?? {
         content: parseContent(hello.content) ?? { kind: "idle" },
+        pending: null,
         params: { ...DEFAULT_PARAMS, ...parseParams(hello.params) },
         error: null,
       };
       screen.client = client;
       screen.error = null;
+      // Puede haberse recargado: que vuelva a confirmar que lo tiene.
+      if (screen.pending) screen.pending = { ...screen.pending, progress: 0, ready: false };
       screens.set(hello.id, screen);
       pushScreen(screen);
     } else {
@@ -186,13 +261,14 @@ export function createHub(listVideos: () => string[]) {
   const unregister = (client: Client) => {
     if (client.role === "control") {
       controls.delete(client);
+      if (audioSource === client) setAudioSource(null);
       return;
     }
     const record = (client.role === "screen" ? screens : sources).get(client.id);
     if (record?.client !== client) return;
     record.client = undefined;
-    publishState();
-    publishViewers();
+    // Puede ser la última que faltaba de su orden.
+    startReadyVideos();
   };
 
   const handle = (client: Client, message: ClientMessage) => {
@@ -200,9 +276,17 @@ export function createHub(listVideos: () => string[]) {
       case "set-content": {
         const content = parseContent(message.content);
         if (!content) return;
+        const batch = ++batches;
         for (const screen of targets(message.screens)) {
-          screen.content = content;
           screen.error = null;
+          // Lo que ya está en pantalla no hace falta bajarlo: solo cambia el shader.
+          const showing = screen.content.kind === "video" && content.kind === "video" && screen.content.url === content.url;
+          if (content.kind === "video" && isMedia(content.url) && !showing) {
+            screen.pending = { content, batch, progress: 0, ready: false };
+          } else {
+            screen.content = content;
+            screen.pending = null;
+          }
           pushScreen(screen);
         }
         publishState();
@@ -212,6 +296,12 @@ export function createHub(listVideos: () => string[]) {
       case "set-shader": {
         if (!isShader(message.shader)) return;
         for (const screen of targets(message.screens)) {
+          if (screen.pending) {
+            screen.pending = {
+              ...screen.pending,
+              content: { ...screen.pending.content, shader: message.shader },
+            };
+          }
           if (screen.content.kind !== "video") continue;
           screen.content = { ...screen.content, shader: message.shader };
           pushScreen(screen);
@@ -244,13 +334,51 @@ export function createHub(listVideos: () => string[]) {
           message.role === "screen" ? screens : sources;
         if (records.get(message.id)?.client) return;
         records.delete(message.id);
-        publishState();
+        startReadyVideos();
         return;
       }
       case "refresh-videos":
-        videos = listVideos();
-        publishState();
+        refreshVideos();
         return;
+      case "audio-start":
+        if (client.role !== "control" || audioSource === client) return;
+        send(audioSource ?? undefined, { t: "audio-taken" });
+        setAudioSource(client);
+        return;
+      case "audio-stop":
+        if (audioSource === client) setAudioSource(null);
+        return;
+      case "audio": {
+        const { spectrum } = message;
+        if (audioSource !== client || typeof spectrum !== "string") return;
+        if (spectrum.length > MAX_SPECTRUM_CHARS) return;
+        const data = JSON.stringify({ t: "audio", spectrum } satisfies ServerMessage);
+        for (const listener of listeners()) {
+          if (listener.ws.readyState !== WebSocket.OPEN) continue;
+          if (listener.ws.bufferedAmount > MAX_AUDIO_BACKLOG_BYTES) continue;
+          listener.ws.send(data);
+        }
+        return;
+      }
+      case "download": {
+        const screen = client.role === "screen" ? screens.get(client.id) : undefined;
+        // Puede llegar tarde, cuando la orden ya se reemplazó por otra.
+        if (screen?.pending?.content.url !== message.url) return;
+        const progress = Math.min(1, Math.max(0, Number(message.progress) || 0));
+        screen.pending = { ...screen.pending, progress, ready: message.ready === true };
+        startReadyVideos();
+        return;
+      }
+      case "download-failed": {
+        const screen = client.role === "screen" ? screens.get(client.id) : undefined;
+        if (screen?.pending?.content.url !== message.url) return;
+        // Sigue con lo que estaba mostrando; las demás no la esperan.
+        screen.pending = null;
+        screen.error = typeof message.error === "string" ? message.error : "Falló la descarga";
+        pushScreen(screen);
+        startReadyVideos();
+        return;
+      }
       case "report": {
         const screen = client.role === "screen" ? screens.get(client.id) : undefined;
         if (!screen) return;
@@ -312,6 +440,7 @@ export function createHub(listVideos: () => string[]) {
   }, HEARTBEAT_MS);
 
   return {
+    refreshVideos,
     handleUpgrade(request: IncomingMessage, socket: Duplex, head: Buffer) {
       wss.handleUpgrade(request, socket, head, (ws) => wss.emit("connection", ws, request));
     },

@@ -27,8 +27,25 @@ en el panel. Si se omite, el navegador genera uno y lo recuerda.
 Los loops se copian a `public/videos` (la carpeta no se sube a git) y aparecen
 en el panel al tocar "Actualizar lista".
 
+También se pueden subir videos desde el panel, con el botón o soltándolos encima.
+Quedan en la carpeta `media` de la máquina del hub. Al mandarlos, cada pantalla
+los baja en segundo plano sin dejar de mostrar lo que tenía, y arrancan todas
+juntas cuando los tienen. Si una no puede bajarlo o reproducirlo, se queda como
+estaba, el panel muestra el error y las demás no la esperan. Para borrar uno, se
+elimina de `media` y se toca "Actualizar lista": las pantallas lo sacan de su
+caché.
+
 Para una función, `pnpm start` compila y sirve la versión optimizada. Como
 copia los loops al compilar, hay que volver a correrlo si se agregan videos.
+
+En "Web" se puede mandar una página a las pantallas. Se carga en un iframe, así
+que tienen que tener internet y el sitio tiene que permitir que lo incrusten.
+Desde el servidor con HTTPS, las direcciones `http://` las bloquea el navegador.
+
+Las escenas y las cámaras reaccionan al micrófono de su propia máquina. Con
+"Usar el micrófono de esta compu", en "Sonido", todas escuchan el de la máquina
+del panel. Viaja por el hub como una lista de frecuencias, así que las pantallas
+no piden permiso ni necesitan un micrófono.
 
 ### HTTPS
 
@@ -46,7 +63,8 @@ Si todo corre en una sola máquina, `HTTPS=0 pnpm dev` lo apaga.
 - Abrir dos ventanas con el mismo nombre desconecta a la más vieja.
 - El video en vivo viaja directo entre cámara y pantalla, así que sigue aunque
   el hub se reinicie.
-- No hace falta internet: nada se carga desde afuera de la red local.
+- No hace falta internet: nada se carga desde afuera de la red local, salvo las
+  páginas que se manden desde "Web".
 
 La ventana de cada cámara tiene que quedar visible: los navegadores frenan el
 canvas de las pestañas en segundo plano y el stream se congela.
@@ -56,6 +74,7 @@ canvas de las pestañas en segundo plano y el stream se congela.
 ```
 shared/protocol.ts   Mensajes y tipos que comparten el hub y los clientes
 server/hub.ts        Hub WebSocket: estado de cada pantalla y señalización WebRTC
+server/media.ts      Subida y descarga de los videos del panel
 server/vite-plugin.ts  Monta el hub en el servidor de Vite
 src/main.ts          Elige el rol según la URL
 src/control/         Panel de control (Preact)

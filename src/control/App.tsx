@@ -13,7 +13,7 @@ const STATUS_TEXT = {
 };
 
 export function App() {
-  const { state, status, send } = useHub();
+  const { state, status, audioTaken, send } = useHub();
   const [selected, setSelected] = useState<string[]>([]);
   // Shader con el que salen los próximos loops.
   const [shader, setShader] = useState<ShaderId>("red_effect");
@@ -64,6 +64,9 @@ export function App() {
             chosen={chosen}
             shader={shader}
             origin={origin}
+            remoteAudio={state?.remoteAudio ?? false}
+            status={status}
+            audioTaken={audioTaken}
             onPlay={play}
             send={send}
           />

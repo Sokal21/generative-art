@@ -1,4 +1,10 @@
-import { describeContent, SCENES, ScreenContent, ScreenState } from "../../shared/protocol";
+import {
+  describeContent,
+  SCENES,
+  ScreenContent,
+  ScreenState,
+  videoName,
+} from "../../shared/protocol";
 import { Send } from "./useHub";
 
 interface Props {
@@ -19,9 +25,19 @@ function Preview({ content }: { content: ScreenContent }) {
       return <div class="tile-fill tile-scene">{SCENES[content.scene]}</div>;
     case "stream":
       return <div class="tile-fill tile-stream">En vivo</div>;
+    case "web":
+      return <div class="tile-fill tile-scene">Web</div>;
     default:
       return <div class="tile-fill" />;
   }
+}
+
+function describePending({ pending }: ScreenState): string | null {
+  if (!pending) return null;
+  const name = videoName(pending.content.url);
+  return pending.ready
+    ? `${name} listo, esperando a las demás`
+    : `Bajando ${name}: ${Math.floor(pending.progress * 100)}%`;
 }
 
 export function Wall({ screens, selected, origin, onToggle, onSelectAll, onPlay, send }: Props) {
@@ -69,6 +85,7 @@ export function Wall({ screens, selected, origin, onToggle, onSelectAll, onPlay,
                   <span class={`tile-what ${screen.error ? "fault" : ""}`}>
                     {screen.error ?? describeContent(screen.content)}
                   </span>
+                  {screen.pending && <span class="tile-pending">{describePending(screen)}</span>}
                 </button>
                 {!screen.online && (
                   <button

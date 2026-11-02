@@ -1,15 +1,19 @@
 import {
   DEFAULT_PARAMS,
   EffectParams,
+  isMedia,
   ScreenContent,
   sameContent,
+  videoName,
 } from "../../shared/protocol";
 import { Runtime } from "../engine/runtime";
 import { Connection } from "../net/connection";
+import { cachedSource, download, probe, prune } from "../net/media";
 import { StreamSubscriber } from "../net/rtc";
 import { SCENE_FACTORIES } from "../scenes/registry";
 import { StreamScene } from "../scenes/stream";
 import { VideoScene } from "../scenes/video";
+import { WebScene } from "../scenes/web";
 
 const IDENTIFY_MS = 4000;
 // Los cortes cortos no se anuncian sobre la proyección.
@@ -36,13 +40,14 @@ export function startScreen(root: HTMLElement, id: string) {
   const storageKey = `visuales:screen:${id}`;
   const remembered = JSON.parse(localStorage.getItem(storageKey) ?? "null");
   let content: ScreenContent = remembered?.content ?? { kind: "idle" };
-  let params: EffectParams = remembered?.params ?? DEFAULT_PARAMS;
+  let params: EffectParams = { ...DEFAULT_PARAMS, ...remembered?.params };
   let shown: ScreenContent = { kind: "idle" };
   let identifyTimer: number | undefined;
   let offlineTimer: number | undefined;
 
   const connection = new Connection(() => ({ t: "hello", role: "screen", id, content, params }));
   const report = (error: string | null) => connection.send({ t: "report", error });
+  runtime.followRemoteAudio(connection);
 
   const subscriber = new StreamSubscriber(connection, (stream) => {
     if (runtime.current instanceof StreamScene) runtime.current.attach(stream);
@@ -55,7 +60,7 @@ export function startScreen(root: HTMLElement, id: string) {
 
   showLabel();
 
-  const apply = (next: ScreenContent, nextParams: EffectParams) => {
+  const apply = (next: ScreenContent, nextParams: EffectParams, source?: string) => {
     const previous = shown;
     content = shown = next;
     params = nextParams;
@@ -81,13 +86,17 @@ export function startScreen(root: HTMLElement, id: string) {
         runtime.show(null);
         break;
       case "video":
-        runtime.show((ctx) => new VideoScene(ctx, next.url, next.shader, params, report));
+        runtime.show((ctx) => new VideoScene(ctx, next.url, next.shader, params, report, source));
         break;
       case "scene":
         runtime.show(SCENE_FACTORIES[next.scene]);
+        runtime.current?.setParams?.(params);
         break;
       case "stream":
         runtime.show(() => new StreamScene());
+        break;
+      case "web":
+        runtime.show(() => new WebScene(next.url));
         break;
     }
   };
@@ -105,12 +114,81 @@ export function startScreen(root: HTMLElement, id: string) {
     }
   };
 
+  // Baja el video de la orden en curso; lo que se ve no cambia hasta que el hub
+  // avise que lo tienen todas. Una orden nueva cancela la anterior.
+  let downloading: { url: string; abort: AbortController } | undefined;
+  const follow = (url: string | null) => {
+    if ((downloading?.url ?? null) === url) return;
+    downloading?.abort.abort();
+    downloading = undefined;
+    if (!url) return;
+
+    const job = { url, abort: new AbortController() };
+    downloading = job;
+    let percent = 0;
+    const name = videoName(url);
+    connection.send({ t: "download", url, progress: 0, ready: false });
+
+    download(
+      url,
+      (progress) => {
+        const next = Math.floor(progress * 100);
+        if (next === percent) return;
+        percent = next;
+        // Hasta acá solo se bajó: falta confirmar que se puede reproducir.
+        connection.send({ t: "download", url, progress, ready: false });
+      },
+      job.abort.signal
+    )
+      .catch((error) => {
+        throw new Error(job.abort.signal.aborted ? "Cancelada" : `No se pudo bajar ${name}: ${error.message}`);
+      })
+      .then(() => cachedSource(url))
+      .then((source) => {
+        if (!source) throw new Error(`No se pudo guardar ${name}`);
+        return probe(source).catch((error) => {
+          throw new Error(`${name}: ${error.message}`);
+        });
+      })
+      .then(() => {
+        if (downloading !== job) return;
+        downloading = undefined;
+        connection.send({ t: "download", url, progress: 1, ready: true });
+      })
+      .catch((error) => {
+        if (downloading !== job) return;
+        downloading = undefined;
+        console.error(error);
+        connection.send({ t: "download-failed", url, error: error.message });
+      });
+  };
+
+  const sourceFor = async (next: ScreenContent) => {
+    if (next.kind !== "video" || !isMedia(next.url)) return undefined;
+    // Si se borró de la caché, se reproduce directo del hub como cualquier loop.
+    return (await cachedSource(next.url).catch(() => null)) ?? next.url;
+  };
+
+  let turn = 0;
+  let knownMedia = "";
   connection.on("screen", async (message) => {
+    follow(message.pending);
+
+    const media = message.videos.filter(isMedia);
+    if (media.join() !== knownMedia) {
+      knownMedia = media.join();
+      prune(media).catch(console.error);
+    }
+
     // La conexión no espera a p5: una pestaña en segundo plano tarda en
     // arrancar el canvas, pero tiene que figurar en el panel igual.
+    const mine = ++turn;
     await runtime.ready;
-    apply(message.content, message.params);
-    preload(message.videos);
+    const source = await sourceFor(message.content);
+    if (mine !== turn) return;
+    apply(message.content, message.params, source);
+    // Lo subido se baja recién cuando llega la orden.
+    preload(message.videos.filter((url) => !isMedia(url)));
   });
 
   connection.on("identify", () => {

@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { SHADER_IDS, ShaderId } from "../../shared/protocol";
 import { Microphone } from "../inputs/microphone";
+import { Connection } from "../net/connection";
 import { Scene, SceneContext, SceneFactory } from "../scenes";
 
 type Uniforms = Record<string, number | number[]>;
@@ -35,7 +36,7 @@ export class Runtime {
       new p5((p: p5) => {
         this.ctx = {
           p,
-          mic: () => (this.microphone ??= new Microphone("default", 1024)),
+          mic: () => this.mic,
           shader: (id) => this.shaders[id],
         };
 
@@ -68,6 +69,16 @@ export class Runtime {
         };
       }, parent);
     });
+  }
+
+  get mic(): Microphone {
+    return (this.microphone ??= new Microphone("default", 1024));
+  }
+
+  /** Hace que las escenas escuchen el micrófono del panel cuando el hub lo indique. */
+  followRemoteAudio(connection: Connection) {
+    connection.on("audio-source", (message) => this.mic.setRemote(message.remote));
+    connection.on("audio", (message) => this.mic.feed(message.spectrum));
   }
 
   get current(): Scene | null {

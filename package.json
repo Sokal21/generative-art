@@ -13,12 +13,14 @@
     "lodash": "^4.17.21",
     "p5": "^1.6.0",
     "preact": "^10.24.0",
+    "three": "0.186.1",
     "webmidi": "^3.1.6"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
     "@types/node": "^22.0.0",
     "@types/p5": "^1.6.2",
+    "@types/three": "0.186.0",
     "@types/ws": "^8.5.10",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "typescript": "^5.0.2",

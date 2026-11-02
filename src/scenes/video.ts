@@ -11,9 +11,11 @@ export class VideoScene implements Scene {
     readonly url: string,
     private shaderId: ShaderId,
     private params: EffectParams,
-    onError: (message: string | null) => void
+    onError: (message: string | null) => void,
+    // De dónde leerlo, si ya está bajado. `url` sigue siendo su identidad.
+    source: string = url
   ) {
-    this.video = ctx.p.createVideo(url);
+    this.video = ctx.p.createVideo(source);
     this.video.hide();
 
     const element: HTMLVideoElement = this.video.elt;

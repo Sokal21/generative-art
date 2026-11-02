@@ -8,7 +8,7 @@ const https = process.env.HTTPS !== "0";
 
 export default defineConfig({
   plugins: [hubPlugin(), ...(https ? [basicSsl()] : [])],
-  server: { host: true },
+  server: { host: true, watch: { ignored: ["**/media/**"] } },
   preview: { host: true },
   esbuild: { jsx: "automatic", jsxImportSource: "preact" },
 });

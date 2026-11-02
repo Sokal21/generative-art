@@ -38,6 +38,7 @@ export async function startCam(root: HTMLElement, id: string) {
   const stream = runtime.canvas.captureStream(60);
   const connection = new Connection(() => ({ t: "hello", role: "cam", id, shader }));
   new StreamPublisher(connection, stream);
+  runtime.followRemoteAudio(connection);
 
   connection.on("source", (message) => {
     shader = message.shader;

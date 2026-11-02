@@ -32,7 +32,10 @@ export class CameraScene implements Scene {
     const offset = p.map(micLevel, 0, 1, 0, 0.2, true);
 
     drawShaded(p, this.ctx.shader(this.shaderId), this.capture, {
-      ...DEFAULT_PARAMS,
+      brightness: DEFAULT_PARAMS.brightness,
+      contrast: DEFAULT_PARAMS.contrast,
+      saturation: DEFAULT_PARAMS.saturation,
+      distortion: DEFAULT_PARAMS.distortion,
       speed,
       offset: [offset, offset],
     });

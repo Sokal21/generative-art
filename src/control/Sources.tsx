@@ -10,7 +10,11 @@ import {
   sameContent,
   videoName,
 } from "../../shared/protocol";
+import { Status } from "../net/connection";
+import { AudioSource } from "./AudioSource";
+import { Upload } from "./Upload";
 import { Send } from "./useHub";
+import { WebSource } from "./WebSource";
 
 interface Props {
   videos: string[];
@@ -18,11 +22,25 @@ interface Props {
   chosen: ScreenState[];
   shader: ShaderId;
   origin: string;
+  remoteAudio: boolean;
+  status: Status;
+  audioTaken: number;
   onPlay(content: ScreenContent): void;
   send: Send;
 }
 
-export function Sources({ videos, sources, chosen, shader, origin, onPlay, send }: Props) {
+export function Sources({
+  videos,
+  sources,
+  chosen,
+  shader,
+  origin,
+  remoteAudio,
+  status,
+  audioTaken,
+  onPlay,
+  send,
+}: Props) {
   const none = chosen.length === 0;
   // Marca lo que ya está sonando en todas las pantallas elegidas.
   const playing = (content: ScreenContent) =>
@@ -48,10 +66,11 @@ export function Sources({ videos, sources, chosen, shader, origin, onPlay, send 
             Actualizar lista
           </button>
         </div>
+        <Upload />
         {videos.length === 0 ? (
           <p class="empty">
-            No hay loops. Copiá tus videos a la carpeta <code>public/videos</code> y tocá
-            “Actualizar lista”.
+            No hay loops. Subí uno desde acá, o copiá tus videos a la carpeta{" "}
+            <code>public/videos</code> y tocá “Actualizar lista”.
           </p>
         ) : (
           <ul class="loops">
@@ -78,7 +97,6 @@ export function Sources({ videos, sources, chosen, shader, origin, onPlay, send 
       <div class="group">
         <div class="group-head">
           <h3>Escenas generativas</h3>
-          <p class="panel-note">Reaccionan al micrófono de cada pantalla.</p>
         </div>
         <div class="chips">
           {SCENE_IDS.map((scene) => (
@@ -92,6 +110,21 @@ export function Sources({ videos, sources, chosen, shader, origin, onPlay, send 
             </button>
           ))}
         </div>
+      </div>
+
+      <div class="group">
+        <div class="group-head">
+          <h3>Sonido</h3>
+        </div>
+        <AudioSource remoteAudio={remoteAudio} status={status} audioTaken={audioTaken} send={send} />
+      </div>
+
+      <div class="group">
+        <div class="group-head">
+          <h3>Web</h3>
+          <p class="panel-note">La carga cada pantalla, así que necesitan internet.</p>
+        </div>
+        <WebSource chosen={chosen} onPlay={onPlay} />
       </div>
 
       <div class="group">
